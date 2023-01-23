@@ -12,9 +12,11 @@ const char* vertexShaderSource =
 "layout (location = 0) in vec3 vPos;    \n"
 "layout (location = 1) in vec4 vColor;  \n"
 "out vec4 Color;						\n"
+"uniform float _Time;					\n"
 "void main(){							\n"
-" Color = vColor;						\n"
-" gl_Position = vec4(vPos,1.0);		    \n"
+"Color = vColor;						\n"
+"float st = abs(sin(_Time));				\n"
+"gl_Position = vec4(vPos.x * abs(sin(_Time + vPos.x)), vPos.y * abs(sin(_Time)), vPos.z, 1.0); \n"
 "}										\0"; // \0 is a null character and shows the end of a none character array
 
 
@@ -33,7 +35,7 @@ const char* fragmentShaderSource =
 const float vertices[] = { 
 	-0.5, -0.5, 0.0,  1.0, 0.0, 0.0, 1.0, //Bottom left
 	+0.5, -0.5, 0.0,  0.0, 1.0, 0.0, 1.0, //Bottom right
-	+0.0, +0.0, 0.0,  0.0, 0.0, 1.0, 1.0 //Top 
+	+0.0, +0.5, 0.0,  0.0, 0.0, 1.0, 1.0 //Top 
 };
 
 int main() {
