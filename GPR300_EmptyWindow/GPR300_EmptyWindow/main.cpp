@@ -3,6 +3,22 @@
 
 #include <stdio.h>
 
+struct Vec3 
+{
+	float x, y, z;
+};
+
+struct Color
+{
+	float r, g, b, a;
+};
+struct Vertex
+{
+	Vec3 position;
+	Color color;
+};
+
+
 //void keyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
 
@@ -15,7 +31,6 @@ const char* vertexShaderSource =
 "uniform float _Time;					\n"
 "void main(){							\n"
 "Color = vColor;						\n"
-"float st = abs(sin(_Time));				\n"
 "gl_Position = vec4(vPos.x * abs(sin(_Time + vPos.x)), vPos.y * abs(sin(_Time)), vPos.z, 1.0); \n"
 "}										\0"; // \0 is a null character and shows the end of a none character array
 
@@ -32,10 +47,15 @@ const char* fragmentShaderSource =
 "}								\0";
 
 //TODO: Vertex data array
-const float vertices[] = { 
+Vertex vertices[] = { 
+	//x y z           r g b a
 	-0.5, -0.5, 0.0,  1.0, 0.0, 0.0, 1.0, //Bottom left
 	+0.5, -0.5, 0.0,  0.0, 1.0, 0.0, 1.0, //Bottom right
-	+0.0, +0.5, 0.0,  0.0, 0.0, 1.0, 1.0 //Top 
+	+0.0, +0.5, 0.0,  0.0, 0.0, 1.0, 1.0, //Top 
+
+	-1.0, -1.0, 0.0,  0.0, 1.0, 0.0, 1.0,
+	-0.5, +0.5, 0.0,  1.0, 0.0, 1.0, 1.0,
+	+0.0, 0.25, 0.0,  0.0, 0.0, 1.0, 1.0
 };
 
 int main() {
@@ -123,11 +143,11 @@ int main() {
 	//TODO: Define vertex ATTRIBUTES layout
 
 	//Position
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, position)));
 	glEnableVertexAttribArray(0);  
 
 	//COLOR
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float)*3));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, color)));
 	glEnableVertexAttribArray(1);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -143,7 +163,7 @@ int main() {
 		glUniform1f(timeLocation, time);
 		
 		//TODO: Draw triangle (3 indices!)
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
