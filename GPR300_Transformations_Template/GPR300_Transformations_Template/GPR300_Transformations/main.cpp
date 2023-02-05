@@ -46,6 +46,7 @@ int main() {
 		printf("glfw failed to init");
 		return 1;
 	}
+	
 
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Transformations", 0, 0);
 	glfwMakeContextCurrent(window);
@@ -100,7 +101,6 @@ int main() {
 
 		//Draw
 		shader.use();
-
 		cubeMesh.draw();
 
 		//Draw UI
