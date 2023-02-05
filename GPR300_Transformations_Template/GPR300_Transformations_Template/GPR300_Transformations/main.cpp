@@ -41,6 +41,61 @@ const float MOUSE_SENSITIVITY = 0.1f;
 glm::vec3 bgColor = glm::vec3(0);
 float exampleSliderFloat = 0.0f;
 
+class Camera
+{
+	glm::vec3 pos;
+	glm::vec3 target;
+	float fov; //verticaql field of view
+
+	float orthographicSize; // height of frustum in view space
+	bool orthographic;
+
+	glm::mat4 getViewMatrix()
+	{
+		return glm::mat4(1);
+	}
+
+	glm::mat4 getProjectionMatrix()
+	{
+		return glm::mat4(1);
+	}
+
+	glm::mat4 ortho(float height, float aspectRatio, float nearPlane, float farPlane)
+	{
+		float r = (height * aspectRatio) / 2; //width/2
+		float t = height / 2;
+		float l = -r;
+		float b = -t;
+
+		glm::mat4 ortho = { 2 / (r - l), 0 , 0, -(r + l) / (r - l),
+							0, 2 / (t - b), 0, -(t + b) / (t - b),
+							0, 0, -2 / (farPlane - nearPlane), -(farPlane + nearPlane) / (farPlane - nearPlane),
+							0, 0, 0, 1 };
+
+		return ortho;
+	}
+
+	glm::mat4 perspective(float fov, float aspectRatio, float nearPlane, float farPlane)
+	{
+		return glm::mat4(1);
+	}
+
+};
+
+class Transform
+{
+	glm::vec3 pos;
+	glm::quat rotQ;
+	glm::vec3 rotE;
+	glm::vec3 scale;
+	glm::mat4 getModelMatrix()
+	{
+		return glm::mat4(1);
+	}
+
+};
+
+
 int main() {
 	if (!glfwInit()) {
 		printf("glfw failed to init");
@@ -104,9 +159,13 @@ int main() {
 		cubeMesh.draw();
 
 		//Draw UI
+		//********************************************************************
 		ImGui::Begin("Settings");
 		ImGui::SliderFloat("Example slider", &exampleSliderFloat, 0.0f, 10.0f);
 		ImGui::End();
+
+
+		//********************************************************************
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
