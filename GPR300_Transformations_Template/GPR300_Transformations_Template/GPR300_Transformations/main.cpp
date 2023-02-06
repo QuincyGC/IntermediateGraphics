@@ -67,32 +67,99 @@ class Camera
 		float l = -r;
 		float b = -t;
 
-		glm::mat4 ortho = { 2 / (r - l), 0 , 0, -(r + l) / (r - l),
-							0, 2 / (t - b), 0, -(t + b) / (t - b),
-							0, 0, -2 / (farPlane - nearPlane), -(farPlane + nearPlane) / (farPlane - nearPlane),
-							0, 0, 0, 1 };
+		glm::mat4 ortho = { 2 / (r - l), 0 , 0, -(r + l) / (r - l), //column
+							0, 2 / (t - b), 0, -(t + b) / (t - b), //column
+							0, 0, -2 / (farPlane - nearPlane), -(farPlane + nearPlane) / (farPlane - nearPlane), //column
+							0, 0, 0, 1 }; //column
 
 		return ortho;
 	}
 
 	glm::mat4 perspective(float fov, float aspectRatio, float nearPlane, float farPlane)
 	{
-		return glm::mat4(1);
+		float c = glm::tan(fov / 2);
+		float a = aspectRatio;
+		float n = nearPlane;
+		float f = farPlane;
+
+		glm::mat4 perspective = { 1 / (a * c), 0, 0, 0,
+								0, 1 / c, 0, 0,
+								0, 0, -(f + n) / (f - n), -(2 * f * n) / (f - n),
+								0, 0, -1, 1 };
+		return perspective;
 	}
 
 };
 
 class Transform
 {
-	glm::vec3 pos;
-	glm::quat rotQ;
-	glm::vec3 rotE;
-	glm::vec3 scale;
-	glm::mat4 getModelMatrix()
+	glm::vec3 pos = glm::vec3(1);
+	//glm::quat rotQ;
+	glm::vec3 rotE = glm::vec3(1);
+	glm::vec3 scale = glm::vec3(1);
+
+	glm::mat4 Transaltion()
 	{
-		return glm::mat4(1);
+		glm::mat4 tran = { 1, 0, 0, pos.x,
+						0, 1, 0, pos.y,
+						0, 0, 1, pos.z,
+						0, 0, 0, 1};
+
+		return tran;
 	}
 
+	glm::mat4 Scale()
+	{
+		glm::mat4 s = { scale.x, 0, 0, 0,
+							0, scale.y, 0, 0,
+							0, 0, scale.z, 0,
+							0, 0, 0, 1 };
+
+		return s;
+	}
+
+	glm::mat4 RotationXEuler()
+	{
+		glm::mat4 rotX = { 1, 0, 0, 0,
+							0, glm::cos(glm::radians(rotE[0])), -glm::sin(glm::radians(rotE[0])), 0,
+							0, glm::sin(glm::radians(rotE[0])), glm::cos(glm::radians(rotE[0])), 0,
+							0, 0, 0, 1 };
+
+		return rotX;
+	}
+	
+	glm::mat4 RotationYEuler()
+	{
+		glm::mat4 rotY = { glm::cos(glm::radians(rotE[1])), 0, glm::sin(glm::radians(rotE[1])), 0,
+							0,1, 0, 0,
+							-glm::sin(glm::radians(rotE[1])), 0, glm::cos(glm::radians(rotE[1])), 0,
+							0, 0, 0, 1 };
+
+		return rotY;
+	}
+
+	glm::mat4 RotationZEuler()
+	{
+		glm::mat4 rotZ = { glm::cos(glm::radians(rotE[2])), -glm::sin(glm::radians(rotE[2])), 0, 0,
+							glm::sin(glm::radians(rotE[2])), glm::cos(glm::radians(rotE[2])), 0, 0,
+							0, 0, 1, 0,
+							0, 0, 0, 1 };
+
+		return rotZ;
+	}
+
+	glm::mat4 getEulerRotationMatrix()
+	{
+		glm::mat4 rotation = RotationXEuler() * RotationYEuler() * RotationZEuler();
+		return rotation;
+	}
+
+	glm::mat4 getModelMatrix()
+	{
+		glm::mat4 modelMatrix = Transaltion() * getEulerRotationMatrix() * Scale();
+
+		return modelMatrix;
+	}
 };
 
 
@@ -102,7 +169,6 @@ int main() {
 		return 1;
 	}
 	
-
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Transformations", 0, 0);
 	glfwMakeContextCurrent(window);
 
