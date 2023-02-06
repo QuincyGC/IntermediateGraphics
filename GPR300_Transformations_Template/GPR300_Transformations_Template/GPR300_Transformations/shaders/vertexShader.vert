@@ -4,7 +4,13 @@ layout (location = 1) in vec3 vNormal;
 
 out vec3 Normal;
 
-void main(){ 
+uniform mat4 _Model;
+uniform mat4 _View;
+uniform mat4 _Projection;
+
+void main()
+{ 
+//_Projection * _View * _Model *
     Normal = vNormal;
-    gl_Position = vec4(vPos,1);
+    gl_Position =  vec4(vPos,1);
 }

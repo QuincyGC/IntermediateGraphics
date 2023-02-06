@@ -66,6 +66,8 @@ class Camera
 	glm::vec3 right = cross(forward, u);
 	glm::vec3 up = cross(right, forward);
 
+public:
+
 	glm::mat4 invRotMatrix()
 	{
 		forward = -forward;
@@ -215,6 +217,8 @@ class Transform
 	glm::vec3 pos = glm::vec3(1);
 	glm::vec3 rotE = glm::vec3(1);
 	glm::vec3 scale = glm::vec3(1);
+
+public:
 
 	glm::mat4 Transaltion()
 	{
@@ -367,6 +371,9 @@ class Transform
 
 
 int main() {
+	Camera cam;
+	Transform trans;
+
 	if (!glfwInit()) {
 		printf("glfw failed to init");
 		return 1;
@@ -425,6 +432,8 @@ int main() {
 
 		//Draw
 		shader.use();
+		//shader.setMat4("_View", cam.getViewMatrix());
+
 		cubeMesh.draw();
 
 		//Draw UI
