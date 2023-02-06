@@ -41,6 +41,8 @@ float sSpeed = 0.0f;
 float sFov = 0.0f;
 float sHeight = 0.0f;
 bool toggle = 0.0f;
+
+int NUM_CUBES = 5;
 //******************************
 
 /* Button to lock / unlock mouse
@@ -55,23 +57,22 @@ float exampleSliderFloat = 0.0f;
 
 class Camera
 {
-	glm::vec3 camPos;
-	glm::vec3 target;
+public:
 
-	float orthographicSize; // height of frustum in view space
-	bool orthographic;
+	glm::vec3 camPos = glm::vec3(0, 0, 10);
+	glm::vec3 target = glm::vec3(0);
+
+	float orthographicSize = 0; // height of frustum in view space
+	bool orthographic = true;
+	float fov = 0;
 
 	glm::vec3 u = glm::vec3(0, 1, 0);
-	glm::vec3 forward = target - camPos;
-	glm::vec3 right = cross(forward, u);
-	glm::vec3 up = cross(right, forward);
-
-public:
+	glm::vec3 forward = glm::normalize(camPos - target);
+	glm::vec3 right = glm::normalize(glm::cross(up, forward));
+	glm::vec3 up = glm::cross(right, forward);
 
 	glm::mat4 invRotMatrix()
 	{
-		forward = -forward;
-
 		glm::mat4 invRot;
 
 		invRot[0][0] = right.x;
@@ -79,14 +80,14 @@ public:
 		invRot[2][0] = right.z;
 		invRot[3][0] = 0;
 
-		invRot[0][1] = right.x;
-		invRot[1][1] = right.x;
-		invRot[2][1] = right.x;
+		invRot[0][1] = up.x;
+		invRot[1][1] = up.y;
+		invRot[2][1] = up.z;
 		invRot[3][1] = 0;
 
-		invRot[0][2] = right.x;
-		invRot[1][2] = right.x;
-		invRot[2][2] = right.x;
+		invRot[0][2] = forward.x;
+		invRot[1][2] = forward.y;
+		invRot[2][2] = forward.z;
 		invRot[3][2] = 0;
 
 		invRot[0][3] = 0;
@@ -126,14 +127,17 @@ public:
 
 	glm::mat4 getViewMatrix()
 	{
-		glm::mat4 viewMatrix = invRotMatrix() + invTransMatrix();
+		glm::mat4 viewMatrix = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+			//invRotMatrix() * invTransMatrix();
 	}
 
 	glm::mat4 getProjectionMatrix()
 	{
 		glm::mat4 projMat = glm::mat4(1);
 
-		if (toggle)
+		if (orthographic)
 		{
 			projMat = orthogonal();
 		}
@@ -143,13 +147,12 @@ public:
 		}
 
 		return projMat;
-		
 	}
 
 	glm::mat4 orthogonal()
 	{
-		float r = (sHeight * aspectRatio) / 2; //width/2
-		float t = sHeight / 2;
+		float r = (orthographicSize * aspectRatio) / 2; //width/2
+		float t = orthographicSize / 2;
 		float l = -r;
 		float b = -t;
 
@@ -180,7 +183,7 @@ public:
 
 	glm::mat4 perspective()
 	{
-		float c = glm::tan(glm::radians(sFov) / 2);
+		float c = glm::tan(glm::radians(fov) / 2);
 		float a = aspectRatio;
 		float n = nearPlane;
 		float f = farPlane;
@@ -431,10 +434,27 @@ int main() {
 		lastFrameTime = time;
 
 		//Draw
-		shader.use();
-		//shader.setMat4("_View", cam.getViewMatrix());
+		/*for (size_t i = 0; i < NUM_CUBES; i++)
+		{*/
+			cam.camPos.x = sRadius * (glm::sin(sSpeed * time));
+			cam.camPos.z = sRadius * (glm::cos(sSpeed * time));
+			cam.fov = sFov;
+			cam.orthographicSize = sHeight;
+			cam.orthographic = toggle;
 
-		cubeMesh.draw();
+			shader.use();
+			shader.setMat4("_Projection", cam.getProjectionMatrix());
+			shader.setMat4("_View", cam.getViewMatrix());
+			shader.setMat4("_Model", trans.getModelMatrix());
+
+			cubeMesh.draw();
+		//}
+
+		/*for (int i = 0; i < 5; i++)
+		{
+			shader.setMat4("_Model", cube[i]->GetModelMatrix());
+			cubeMesh.draw();
+		}*/
 
 		//Draw UI
 		//********************************************************************
