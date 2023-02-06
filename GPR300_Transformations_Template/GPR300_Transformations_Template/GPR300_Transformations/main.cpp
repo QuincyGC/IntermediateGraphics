@@ -31,6 +31,18 @@ double prevMouseX;
 double prevMouseY;
 bool firstMouseInput = false;
 
+//******************************
+float nearPlane = .1f;
+float farPlane = 80.0f;
+float aspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
+
+float sRadius = 0.0f;
+float sSpeed = 0.0f;
+float sFov = 0.0f;
+float sHeight = 0.0f;
+bool toggle = 0.0f;
+//******************************
+
 /* Button to lock / unlock mouse
 * 1 = right, 2 = middle
 * Mouse will start locked. Unlock it to use UI
@@ -43,49 +55,156 @@ float exampleSliderFloat = 0.0f;
 
 class Camera
 {
-	glm::vec3 pos;
+	glm::vec3 camPos;
 	glm::vec3 target;
-	float fov; //verticaql field of view
 
 	float orthographicSize; // height of frustum in view space
 	bool orthographic;
 
+	glm::vec3 u = glm::vec3(0, 1, 0);
+	glm::vec3 forward = target - camPos;
+	glm::vec3 right = cross(forward, u);
+	glm::vec3 up = cross(right, forward);
+
+	glm::mat4 invRotMatrix()
+	{
+		forward = -forward;
+
+		glm::mat4 invRot;
+
+		invRot[0][0] = right.x;
+		invRot[1][0] = right.y;
+		invRot[2][0] = right.z;
+		invRot[3][0] = 0;
+
+		invRot[0][1] = right.x;
+		invRot[1][1] = right.x;
+		invRot[2][1] = right.x;
+		invRot[3][1] = 0;
+
+		invRot[0][2] = right.x;
+		invRot[1][2] = right.x;
+		invRot[2][2] = right.x;
+		invRot[3][2] = 0;
+
+		invRot[0][3] = 0;
+		invRot[1][3] = 0;
+		invRot[2][3] = 0;
+		invRot[3][3] = 1;
+
+		return invRot;
+	}
+
+	glm::mat4 invTransMatrix()
+	{
+		glm::mat4 invTrans;
+
+		invTrans[0][0] = 0;
+		invTrans[1][0] = 0;
+		invTrans[2][0] = 0;
+		invTrans[3][0] = -camPos.x;
+
+		invTrans[0][1] = 0;
+		invTrans[1][1] = 0;
+		invTrans[2][1] = 0;
+		invTrans[3][1] = -camPos.y;
+
+		invTrans[0][2] = 0;
+		invTrans[1][2] = 0;
+		invTrans[2][2] = 0;
+		invTrans[3][2] = -camPos.z;
+
+		invTrans[0][3] = 0;
+		invTrans[1][3] = 0;
+		invTrans[2][3] = 0;
+		invTrans[3][3] = 1;
+
+		return invTrans;
+	}
+
 	glm::mat4 getViewMatrix()
 	{
-		return glm::mat4(1);
+		glm::mat4 viewMatrix = invRotMatrix() + invTransMatrix();
 	}
 
 	glm::mat4 getProjectionMatrix()
 	{
-		return glm::mat4(1);
+		glm::mat4 projMat = glm::mat4(1);
+
+		if (toggle)
+		{
+			projMat = orthogonal();
+		}
+		else
+		{
+			projMat = perspective();
+		}
+
+		return projMat;
+		
 	}
 
-	glm::mat4 ortho(float height, float aspectRatio, float nearPlane, float farPlane)
+	glm::mat4 orthogonal()
 	{
-		float r = (height * aspectRatio) / 2; //width/2
-		float t = height / 2;
+		float r = (sHeight * aspectRatio) / 2; //width/2
+		float t = sHeight / 2;
 		float l = -r;
 		float b = -t;
 
-		glm::mat4 ortho = { 2 / (r - l), 0 , 0, -(r + l) / (r - l), //column
-							0, 2 / (t - b), 0, -(t + b) / (t - b), //column
-							0, 0, -2 / (farPlane - nearPlane), -(farPlane + nearPlane) / (farPlane - nearPlane), //column
-							0, 0, 0, 1 }; //column
+		glm::mat4 ortho; 
+		
+		ortho[0][0] = 2 / (r - l);
+		ortho[1][0] = 0;
+		ortho[2][0] = 0;
+		ortho[3][0] = -(r + l) / (r - l);
+
+		ortho[0][1] = 0;
+		ortho[1][1] = 2 / (t - b);
+		ortho[2][1] = 0;
+		ortho[3][1] = -(t + b) / (t - b);
+
+		ortho[0][2] = 0;
+		ortho[1][2] = 0;
+		ortho[2][2] = -2 / (farPlane - nearPlane);
+		ortho[3][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
+
+		ortho[0][3] = 0;
+		ortho[1][3] = 0;
+		ortho[2][3] = 0;
+		ortho[3][3] = 1;
 
 		return ortho;
 	}
 
-	glm::mat4 perspective(float fov, float aspectRatio, float nearPlane, float farPlane)
+	glm::mat4 perspective()
 	{
-		float c = glm::tan(fov / 2);
+		float c = glm::tan(glm::radians(sFov) / 2);
 		float a = aspectRatio;
 		float n = nearPlane;
 		float f = farPlane;
 
-		glm::mat4 perspective = { 1 / (a * c), 0, 0, 0,
-								0, 1 / c, 0, 0,
-								0, 0, -(f + n) / (f - n), -(2 * f * n) / (f - n),
-								0, 0, -1, 1 };
+		glm::mat4 perspective;
+		
+		perspective[0][0] = 1 / (a * c);
+		perspective[1][0] = 0;
+		perspective[2][0] = 0;
+		perspective[3][0] = 0;
+
+		perspective[0][1] = 0;
+		perspective[1][1] = 1 / c;
+		perspective[2][1] = 0;
+		perspective[3][1] = 0;
+
+		perspective[0][2] = 0;
+		perspective[1][2] = 0;
+		perspective[2][2] = -(f + n) / (f - n);
+		perspective[3][2] = -(2 * f * n) / (f - n);
+
+		perspective[0][3] = 0;
+		perspective[1][3] = 0;
+		perspective[2][3] = -1;
+		perspective[3][3] = 1;
+
 		return perspective;
 	}
 
@@ -94,56 +213,140 @@ class Camera
 class Transform
 {
 	glm::vec3 pos = glm::vec3(1);
-	//glm::quat rotQ;
 	glm::vec3 rotE = glm::vec3(1);
 	glm::vec3 scale = glm::vec3(1);
 
 	glm::mat4 Transaltion()
 	{
-		glm::mat4 tran = { 1, 0, 0, pos.x,
-						0, 1, 0, pos.y,
-						0, 0, 1, pos.z,
-						0, 0, 0, 1};
+		glm::mat4 tran;
+
+		tran[0][0] = 1;
+		tran[1][0] = 0;
+		tran[2][0] = 0;
+		tran[3][0] = pos.x;
+
+		tran[0][1] = 0;
+		tran[1][1] = 1;
+		tran[2][1] = 0;
+		tran[3][1] = pos.y;
+
+		tran[0][2] = 0;
+		tran[1][2] = 0;
+		tran[2][2] = 1;
+		tran[3][2] = pos.z;
+
+		tran[0][3] = 0;
+		tran[1][3] = 0;
+		tran[2][3] = 0;
+		tran[3][3] = 1;
 
 		return tran;
 	}
 
 	glm::mat4 Scale()
 	{
-		glm::mat4 s = { scale.x, 0, 0, 0,
-							0, scale.y, 0, 0,
-							0, 0, scale.z, 0,
-							0, 0, 0, 1 };
+		glm::mat4 s;
+
+		s[0][0] = scale.x;
+		s[1][0] = 0;
+		s[2][0] = 0;
+		s[3][0] = 0;
+
+		s[0][1] = 0;
+		s[1][1] = scale.y;
+		s[2][1] = 0;
+		s[3][1] = 0;
+
+		s[0][2] = 0;
+		s[1][2] = 0;
+		s[2][2] = scale.z;
+		s[3][2] = 0;
+
+		s[0][3] = 0;
+		s[1][3] = 0;
+		s[2][3] = 0;
+		s[3][3] = 1;
 
 		return s;
 	}
 
 	glm::mat4 RotationXEuler()
 	{
-		glm::mat4 rotX = { 1, 0, 0, 0,
-							0, glm::cos(glm::radians(rotE[0])), -glm::sin(glm::radians(rotE[0])), 0,
-							0, glm::sin(glm::radians(rotE[0])), glm::cos(glm::radians(rotE[0])), 0,
-							0, 0, 0, 1 };
+		glm::mat4 rotX;
+
+		rotX[0][0] = 1;
+		rotX[1][0] = 0;
+		rotX[2][0] = 0;
+		rotX[3][0] = 0;
+
+		rotX[0][1] = 0;
+		rotX[1][1] = glm::cos(rotE[0]);
+		rotX[2][1] = -glm::sin(rotE[0]);
+		rotX[3][1] = 0;
+
+		rotX[0][2] = 0;
+		rotX[1][2] = glm::sin(rotE[0]);
+		rotX[2][2] = glm::cos(rotE[0]);
+		rotX[3][2] = 0;
+
+		rotX[0][3] = 0;
+		rotX[1][3] = 0;
+		rotX[2][3] = 0;
+		rotX[3][3] = 1;
 
 		return rotX;
 	}
 	
 	glm::mat4 RotationYEuler()
 	{
-		glm::mat4 rotY = { glm::cos(glm::radians(rotE[1])), 0, glm::sin(glm::radians(rotE[1])), 0,
-							0,1, 0, 0,
-							-glm::sin(glm::radians(rotE[1])), 0, glm::cos(glm::radians(rotE[1])), 0,
-							0, 0, 0, 1 };
+		glm::mat4 rotY;
+
+		rotY[0][0] = glm::cos(rotE[1]);
+		rotY[1][0] = 0;
+		rotY[2][0] = glm::sin(rotE[1]);
+		rotY[3][0] = 0;
+
+		rotY[0][1] = 0;
+		rotY[1][1] = 1;
+		rotY[2][1] = 0;
+		rotY[3][1] = 0;
+
+		rotY[0][2] = 0;
+		rotY[1][2] = -glm::sin(rotE[1]);
+		rotY[2][2] = glm::cos(rotE[1]);
+		rotY[3][2] = 0;
+
+		rotY[0][3] = 0;
+		rotY[1][3] = 0;
+		rotY[2][3] = 0;
+		rotY[3][3] = 1;
 
 		return rotY;
 	}
 
 	glm::mat4 RotationZEuler()
 	{
-		glm::mat4 rotZ = { glm::cos(glm::radians(rotE[2])), -glm::sin(glm::radians(rotE[2])), 0, 0,
-							glm::sin(glm::radians(rotE[2])), glm::cos(glm::radians(rotE[2])), 0, 0,
-							0, 0, 1, 0,
-							0, 0, 0, 1 };
+		glm::mat4 rotZ;
+
+		rotZ[0][0] = glm::cos(rotE[2]);
+		rotZ[1][0] = -glm::sin(rotE[2]);
+		rotZ[2][0] = 0;
+		rotZ[3][0] = 0;
+
+		rotZ[0][1] = glm::sin(rotE[2]);
+		rotZ[1][1] = glm::cos(rotE[2]);
+		rotZ[2][1] = 0;
+		rotZ[3][1] = 0;
+
+		rotZ[0][2] = 0;
+		rotZ[1][2] = 0;
+		rotZ[2][2] = 1;
+		rotZ[3][2] = 0;
+
+		rotZ[0][3] = 0;
+		rotZ[1][3] = 0;
+		rotZ[2][3] = 0;
+		rotZ[3][3] = 1;
 
 		return rotZ;
 	}
@@ -227,9 +430,12 @@ int main() {
 		//Draw UI
 		//********************************************************************
 		ImGui::Begin("Settings");
-		ImGui::SliderFloat("Example slider", &exampleSliderFloat, 0.0f, 10.0f);
+		ImGui::SliderFloat("Orbit Speed", &sSpeed, 0.0f, 10.0f);
+		ImGui::SliderFloat("Orbit Radius", &sRadius, 0.0f, 10.0f);
+		ImGui::SliderFloat("Field of View", &sFov, 0.0f, 10.0f);
+		ImGui::SliderFloat("Orthographic Height", &sHeight, 0.0f, 10.0f);
+		ImGui::Checkbox("Orthographic Toggle", &toggle);
 		ImGui::End();
-
 
 		//********************************************************************
 
