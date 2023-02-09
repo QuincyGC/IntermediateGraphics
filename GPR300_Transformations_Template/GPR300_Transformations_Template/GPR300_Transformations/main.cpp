@@ -396,18 +396,18 @@ int main() {
 	for (size_t i = 0; i < NUM_CUBES; i++)
 	{
 		
-		float transX = (rand() % 10 + 1);
-		float transY = (rand() % 10 + 1);
-		float transZ = (rand() % 10 + 1);
+		float transX = (rand() % 15 + 1);
+		float transY = (rand() % 6 + 1);
+		float transZ = (rand() % 15 + 1);
 
 		float rotXE = rand() % 10 + 1;
 		float rotYE = rand() % 10 + 1;
-		float rotZE = rand() % 10 + 1;
+		float rotZE = rand() % 5 + 1;
 
 		float scale = rand() % 5 + 1;
 
 		trans[i].pos = glm::vec3(transX, transY, transZ);
-		/*trans[i].rotE = glm::vec3(rotXE, rotYE, rotZE);*/
+		trans[i].rotE = glm::vec3(rotXE, rotYE, rotZE);
 		trans[i].scale = glm::vec3(scale);
 
 	}
