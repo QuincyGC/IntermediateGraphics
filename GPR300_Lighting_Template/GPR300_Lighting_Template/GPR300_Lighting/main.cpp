@@ -39,6 +39,7 @@ double prevMouseX;
 double prevMouseY;
 bool firstMouseInput = false;
 
+
 /* Button to lock / unlock mouse
 * 1 = right, 2 = middle
 * Mouse will start locked. Unlock it to use UI
@@ -55,6 +56,13 @@ glm::vec3 lightColor = glm::vec3(1.0f);
 glm::vec3 lightPosition = glm::vec3(0.0f, 3.0f, 0.0f);
 
 bool wireFrame = false;
+
+struct SpotLight {
+	float minAngle = 30; //Penumbra
+	float MaxAngle = 60; //Umbra
+	float pos;
+	float dir;
+};
 
 int main() {
 	if (!glfwInit()) {
@@ -151,11 +159,16 @@ int main() {
 		deltaTime = time - lastFrameTime;
 		lastFrameTime = time;
 
+		cubeTransform.rotation.x += deltaTime;
+
 		//Draw
 		litShader.use();
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
 		litShader.setVec3("_LightPos", lightTransform.position);
+
+
+
 		//Draw cube
 		litShader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw();
