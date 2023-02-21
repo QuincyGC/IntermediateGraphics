@@ -50,11 +50,20 @@ const float CAMERA_ZOOM_SPEED = 3.0f;
 
 Camera camera((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT);
 
+//IMPORTANT QUINCY!!!*************************************************
 glm::vec3 bgColor = glm::vec3(0);
 glm::vec3 lightColor = glm::vec3(1.0f);
 glm::vec3 lightPosition = glm::vec3(0.0f, 3.0f, 0.0f);
 
 bool wireFrame = false;
+
+struct Light {
+	glm::vec3 position;
+	glm::vec3 color;
+	float intensity;
+};
+
+Light light;
 
 int main() {
 	if (!glfwInit()) {
@@ -155,7 +164,18 @@ int main() {
 		litShader.use();
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
-		litShader.setVec3("_LightPos", lightTransform.position);
+
+		//my code
+		/*litShader.setVec3("_LightPos", lightTransform.position);*/
+
+		//Set some lighting uniforms: Calling a specific light from array
+		for (size_t i = 0; i < 8; i++)
+		{
+			litShader.setVec3("_Lights[" + std::to_string(i) + "].position", lightTransform.position);
+			litShader.setFloat("_Lights[" + std::to_string(i) + "].intensity", light.intensity);
+			litShader.setVec3("_Lights[" + std::to_string(i) + "].color", light.color);
+		}
+		
 		//Draw cube
 		litShader.setMat4("_Model", cubeTransform.getModelMatrix());
 		cubeMesh.draw();
