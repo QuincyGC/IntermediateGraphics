@@ -165,8 +165,8 @@ int main() {
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
 
-		//my code
-		/*litShader.setVec3("_LightPos", lightTransform.position);*/
+		//HOW WE GET LIGHT DIRECTION*************************************
+		litShader.setVec3("lightPos", lightTransform.position);
 
 		//Set some lighting uniforms: Calling a specific light from array
 		for (size_t i = 0; i < 8; i++)

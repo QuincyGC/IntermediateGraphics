@@ -44,31 +44,47 @@ struct Material{
     float Shininess; //1-512
 };
 
-#define MAX_LIGHTS 8
-//const int MAX_LIGHTS = 8;
-uniform Light _Lights[MAX_LIGHTS];
-
-vec3 Ambient(vec3 LightColor, vec3 ObjectColor)
+vec3 Ambient()
 {
     float coefficient = .1;
     vec3 ambient = coefficient * LightColor;
-    vec3 result = ambient * ObjectColor;
 
-    return result;
+    return ambient;
 }
 
 vec3 Diffuse()
 {
+    float coefficient = .1;
 
-    return vec3(0);
+    vec3 lightDir = normalize(lightPos - v_out.WorldPosition);
+
+    vec3 surfaceNormal = normalize(v_out.WorldNormal);
+
+    float intensity;
+
+    float diff = max(dot(surfaceNormal, lightDir), 0.0);
+    vec3 diffuse = diff * LightColor;
+
+
+    return diffuse;
 }
 
 vec3 Specular()
 {
+    
     return vec3(0);
 }
 
+#define MAX_LIGHTS 8
+//const int MAX_LIGHTS = 8;
+uniform Light _Lights[MAX_LIGHTS];
+
+uniform vec3 lightPos;
+
 void main(){      
     vec3 normal = normalize(v_out.WorldNormal);
+    
+    //vec3 result = (Ambient() + Diffuse()) * ObjectColor;
+
     FragColor = vec4(abs(normal),1.0f); //abs(normal)
 }
