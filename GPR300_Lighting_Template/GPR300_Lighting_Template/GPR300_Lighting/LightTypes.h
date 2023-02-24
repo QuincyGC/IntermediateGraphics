@@ -25,9 +25,9 @@
 
 struct DirectionalLight
 {
-    glm::vec3 color;
-    glm::vec3 dir;
-    float intesity;
+    glm::vec3 color = glm::vec3(1);
+    glm::vec3 dir = glm::vec3(0, -1, 0); //Pointing Down
+    float intesity = 1;
 };
 
 struct PointLight
@@ -51,9 +51,9 @@ struct SpotLight
 
 struct Material
 {
-    glm::vec3 color;
-    float AmbientK;
-    float DiffuseK;
-    float SpecularK; //0-1
-    float Shininess; //1-512
+    glm::vec3 color = glm::vec3(1);
+    float AmbientK = 0.1;
+    float DiffuseK = 0.1;
+    float SpecularK = 0.1; //0-1
+    float Shininess = 150; //1-512
 };

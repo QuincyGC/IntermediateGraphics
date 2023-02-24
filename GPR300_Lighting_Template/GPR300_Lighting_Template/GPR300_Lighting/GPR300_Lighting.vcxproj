@@ -159,6 +159,7 @@
     <ClInclude Include="EW\ShapeGen.h" />
     <ClInclude Include="EW\Shader.h" />
     <ClInclude Include="EW\Transform.h" />
+    <ClInclude Include="LightTypes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

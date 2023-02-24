@@ -8,22 +8,22 @@ in struct Vertex{
 
 struct DirectionLight{
     vec3 color;
-    vec3 dir;
-    float intesity;
+    vec3 direction;
+    float intensity;
 };
 
 struct PointLight{
     vec3 color;
     vec3 pos;
-    float intesity;
+    float intensity;
     float linAttenuation;
 };
 
 struct SpotLight{
     vec3 color;
-    vec3 dir;
+    vec3 direction;
     vec3 pos;
-    vec3 intesity;
+    vec3 intensity;
     float linAttenuation;
     float minAngle;
     float MaxAngle;
@@ -48,6 +48,10 @@ uniform vec3 lightPos;
 uniform vec3 lightColor;
 uniform Material material;
 uniform Camera camera;
+
+uniform DirectionLight dLit;
+uniform PointLight pLit;
+uniform SpotLight sLit;
 
 float Ambient(float intensity)
 {
@@ -76,13 +80,46 @@ float Specular(vec3 reflectDir, float intensity)
     return specular;
 }
 
+//Get Directional light
+vec3 dirLit(DirectionLight dirLight, vec3 normal)
+{
+    vec3 lightDir = normalize(-dirLight.direction);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float ambient = Ambient(dirLight.intensity);
+    float diffuse = Diffuse(dirLight.intensity, lightDir);
+    float specular = Specular(reflectDir, dirLight.intensity);
+
+    vec3 result = (ambient + diffuse + specular) * dirLight.color;
+
+    return result;
+};
+
+vec3 pointLit()
+{
+    vec3 color;
+    vec3 pos;
+    float intesity;
+    float linAttenuation;
+
+     return vec3(0);
+};
+
+vec3 spotLit()
+{
+    vec3 color;
+    vec3 dir;
+    vec3 pos;
+    vec3 intesity;
+    float linAttenuation;
+    float minAngle;
+    float MaxAngle;
+     return vec3(0);
+};
 
 void main(){      
     vec3 normal = normalize(v_out.WorldNormal);
-    
-    //vec3 result = (Ambient() + Diffuse()) * ObjectColor;
-
     vec3 cameraDir = normalize(camera.pos - v_out.WorldPosition);
+    vec3 result = dirLit(dLit, normal);
 
-    FragColor = vec4(abs(normal),1.0f); //abs(normal)
+    FragColor = vec4(result,1.0f); //abs(normal)
 }

@@ -140,8 +140,17 @@ int main() {
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
 
-		//HOW WE GET LIGHT DIRECTION*************************************
-		litShader.setVec3("lightPos", lightTransform.position);
+		//Quincy Code
+		litShader.setVec3("camera.pos", camera.getPosition());
+		litShader.setFloat("material.AmbientK", material.AmbientK);
+		litShader.setFloat("material.DiffuseK", material.DiffuseK);
+		litShader.setFloat("material.SpecularK", material.SpecularK);
+		litShader.setFloat("material.Shininess", material.Shininess);
+		litShader.setVec3("material.color", material.color);
+
+		litShader.setVec3("DirectionLight.color", dirLit.color);
+		litShader.setVec3("DirectionLight.dir", dirLit.dir);
+		litShader.setFloat("DirectionLight.intesity", dirLit.intesity);
 
 		//Set some lighting uniforms: Calling a specific light from array
 		for (size_t i = 0; i < 8; i++)
@@ -149,6 +158,7 @@ int main() {
 			/*litShader.setVec3("_Lights[" + std::to_string(i) + "].position", lightTransform.position);
 			litShader.setFloat("_Lights[" + std::to_string(i) + "].intensity", light.intensity);
 			litShader.setVec3("_Lights[" + std::to_string(i) + "].color", light.color);*/
+			
 		}
 		
 		//Draw cube
