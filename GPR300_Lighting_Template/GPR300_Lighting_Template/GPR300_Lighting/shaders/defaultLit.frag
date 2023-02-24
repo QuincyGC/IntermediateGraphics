@@ -6,12 +6,6 @@ in struct Vertex{
     vec3 WorldPosition;
 }v_out;
 
-struct Light{
-    vec3 position;
-    float intensity;
-    vec3 color;
-};
-
 struct DirectionLight{
     vec3 color;
     vec3 dir;
@@ -44,47 +38,51 @@ struct Material{
     float Shininess; //1-512
 };
 
-vec3 Ambient()
+struct Camera{
+    vec3 pos;
+    vec3 dir;
+};
+#define MAX_LIGHTS 8
+
+uniform vec3 lightPos;
+uniform vec3 lightColor;
+uniform Material material;
+uniform Camera camera;
+
+float Ambient(float intensity)
 {
-    float coefficient = .1;
-    vec3 ambient = coefficient * LightColor;
+    float ambient = material.AmbientK * intensity;
 
     return ambient;
 }
 
-vec3 Diffuse()
+float Diffuse(float intensity, vec3 lightDir)
 {
-    float coefficient = .1;
+    vec3 normal = normalize(v_out.WorldNormal);
 
-    vec3 lightDir = normalize(lightPos - v_out.WorldPosition);
-
-    vec3 surfaceNormal = normalize(v_out.WorldNormal);
-
-    float intensity;
-
-    float diff = max(dot(surfaceNormal, lightDir), 0.0);
-    vec3 diffuse = diff * LightColor;
-
+    float diff = max(dot(normal, lightDir), 0.0);
+    float diffuse = material.DiffuseK * diff * intensity;
 
     return diffuse;
 }
 
-vec3 Specular()
+float Specular(vec3 reflectDir, float intensity)
 {
-    
-    return vec3(0);
+    vec3 viewDir = normalize(camera.pos - v_out.WorldPosition);
+    float specDot = max(dot(reflectDir, viewDir), 0.0); //max is helping clamp
+    float specPow = pow(specDot, material.Shininess);
+    float specular = material.SpecularK * specPow * intensity;
+
+    return specular;
 }
 
-#define MAX_LIGHTS 8
-//const int MAX_LIGHTS = 8;
-uniform Light _Lights[MAX_LIGHTS];
-
-uniform vec3 lightPos;
 
 void main(){      
     vec3 normal = normalize(v_out.WorldNormal);
     
     //vec3 result = (Ambient() + Diffuse()) * ObjectColor;
+
+    vec3 cameraDir = normalize(camera.pos - v_out.WorldPosition);
 
     FragColor = vec4(abs(normal),1.0f); //abs(normal)
 }

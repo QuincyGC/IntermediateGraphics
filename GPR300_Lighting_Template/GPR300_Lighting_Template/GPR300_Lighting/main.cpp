@@ -1,26 +1,4 @@
-#include "GL/glew.h"
-#include "GLFW/glfw3.h"
-
-#include <glm/glm.hpp>
-#include <glm/matrix.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include <stdio.h>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
-#include "EW/Shader.h"
-#include "EW/EwMath.h"
-#include "EW/Camera.h"
-#include "EW/Mesh.h"
-#include "EW/Transform.h"
-#include "EW/ShapeGen.h"
+#include "Lighttypes.h"
 
 void processInput(GLFWwindow* window);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
@@ -57,13 +35,10 @@ glm::vec3 lightPosition = glm::vec3(0.0f, 3.0f, 0.0f);
 
 bool wireFrame = false;
 
-struct Light {
-	glm::vec3 position;
-	glm::vec3 color;
-	float intensity;
-};
-
-Light light;
+SpotLight spotLit;
+DirectionalLight dirLit;
+PointLight pointLit;
+Material material;
 
 int main() {
 	if (!glfwInit()) {
@@ -171,9 +146,9 @@ int main() {
 		//Set some lighting uniforms: Calling a specific light from array
 		for (size_t i = 0; i < 8; i++)
 		{
-			litShader.setVec3("_Lights[" + std::to_string(i) + "].position", lightTransform.position);
+			/*litShader.setVec3("_Lights[" + std::to_string(i) + "].position", lightTransform.position);
 			litShader.setFloat("_Lights[" + std::to_string(i) + "].intensity", light.intensity);
-			litShader.setVec3("_Lights[" + std::to_string(i) + "].color", light.color);
+			litShader.setVec3("_Lights[" + std::to_string(i) + "].color", light.color);*/
 		}
 		
 		//Draw cube
