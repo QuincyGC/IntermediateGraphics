@@ -16,7 +16,8 @@ struct PointLight{
     vec3 color;
     vec3 pos;
     float intensity;
-    float linAttenuation;
+    float linearFallOff;
+    float quadFallOff;
 };
 
 struct SpotLight{
@@ -42,7 +43,7 @@ struct Camera{
     vec3 pos;
     vec3 dir;
 };
-#define MAX_LIGHTS 8
+#define MAX_LIGHTS 2
 
 uniform vec3 lightPos;
 uniform vec3 lightColor;
@@ -50,7 +51,7 @@ uniform Material material;
 uniform Camera camera;
 
 uniform DirectionLight dLit;
-uniform PointLight pLit;
+uniform PointLight pLit[MAX_LIGHTS];
 uniform SpotLight sLit;
 
 float Ambient(float intensity)
@@ -64,8 +65,8 @@ float Diffuse(float intensity, vec3 lightDir)
 {
     vec3 normal = normalize(v_out.WorldNormal);
 
-    float diff = max(dot(normal, lightDir), 0.0);
-    float diffuse = material.DiffuseK * diff * intensity;
+    float dotProd = max(dot(lightDir, normal), 0.0);
+    float diffuse = material.DiffuseK * dotProd * intensity;
 
     return diffuse;
 }
@@ -85,6 +86,7 @@ vec3 dirLit(DirectionLight dirLight, vec3 normal)
 {
     vec3 lightDir = normalize(-dirLight.direction);
     vec3 reflectDir = reflect(-lightDir, normal);
+
     float ambient = Ambient(dirLight.intensity);
     float diffuse = Diffuse(dirLight.intensity, lightDir);
     float specular = Specular(reflectDir, dirLight.intensity);
@@ -94,12 +96,22 @@ vec3 dirLit(DirectionLight dirLight, vec3 normal)
     return result;
 };
 
-vec3 pointLit()
+vec3 pointLit(PointLight pointLight, vec3 normal)
 {
-    vec3 color;
-    vec3 pos;
-    float intesity;
-    float linAttenuation;
+    float constCoefficient = 1;
+   
+
+    vec3 lightDir = normalize(pointLight.pos - v_out.WorldPosition);
+    float dist = length(pointLight.pos - v_out.WorldPosition);
+    float attenuation = 1 / (constCoefficient + (pointLight.linearFallOff * dist) + (pointLight.quadFallOff * pow(dist,2)));
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+
+    float ambient = Ambient(pointLight.intensity);
+    float diffuse = Diffuse(pointLight.intensity, lightDir);
+    float specular = Specular(reflectDir, pointLight.intensity);
+
+     vec3 result = (ambient + diffuse + specular) * pointLight.color * attenuation;
 
      return vec3(0);
 };
@@ -109,7 +121,7 @@ vec3 spotLit()
     vec3 color;
     vec3 dir;
     vec3 pos;
-    vec3 intesity;
+    vec3 intensity;
     float linAttenuation;
     float minAngle;
     float MaxAngle;
@@ -119,7 +131,8 @@ vec3 spotLit()
 void main(){      
     vec3 normal = normalize(v_out.WorldNormal);
     vec3 cameraDir = normalize(camera.pos - v_out.WorldPosition);
+
     vec3 result = dirLit(dLit, normal);
 
-    FragColor = vec4(result,1.0f); //abs(normal)
+    FragColor = vec4((result * material.color),1.0f); //abs(normal)
 }

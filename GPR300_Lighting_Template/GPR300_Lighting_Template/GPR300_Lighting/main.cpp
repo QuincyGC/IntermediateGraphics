@@ -39,6 +39,7 @@ SpotLight spotLit;
 DirectionalLight dirLit;
 PointLight pointLit;
 Material material;
+//*********************************
 
 int main() {
 	if (!glfwInit()) {
@@ -140,7 +141,7 @@ int main() {
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
 
-		//Quincy Code
+		//Camere and Material
 		litShader.setVec3("camera.pos", camera.getPosition());
 		litShader.setFloat("material.AmbientK", material.AmbientK);
 		litShader.setFloat("material.DiffuseK", material.DiffuseK);
@@ -148,17 +149,24 @@ int main() {
 		litShader.setFloat("material.Shininess", material.Shininess);
 		litShader.setVec3("material.color", material.color);
 
-		litShader.setVec3("DirectionLight.color", dirLit.color);
-		litShader.setVec3("DirectionLight.dir", dirLit.dir);
-		litShader.setFloat("DirectionLight.intesity", dirLit.intesity);
+		//Directional Light
+		litShader.setVec3("dLit.color", dirLit.color);
+		litShader.setVec3("dLit.direction", dirLit.dir);
+		litShader.setFloat("dLit.intensity", dirLit.intensity);
 
-		//Set some lighting uniforms: Calling a specific light from array
-		for (size_t i = 0; i < 8; i++)
+
+
+		//Point Light
+		for (size_t i = 0; i < 2; i++)
 		{
 			/*litShader.setVec3("_Lights[" + std::to_string(i) + "].position", lightTransform.position);
 			litShader.setFloat("_Lights[" + std::to_string(i) + "].intensity", light.intensity);
 			litShader.setVec3("_Lights[" + std::to_string(i) + "].color", light.color);*/
-			
+			litShader.setVec3("pLit[" + std::to_string(i) + "].color", pointLit.color);
+			litShader.setVec3("pLit[" + std::to_string(i) + "].pos", pointLit.pos);
+			litShader.setFloat("pLit[" + std::to_string(i) + "].intensity", pointLit.intensity);
+			litShader.setFloat("pLit[" + std::to_string(i) + "].linearFallOff", pointLit.linearFallOff);
+			litShader.setFloat("pLit[" + std::to_string(i) + "].quadFallOff", pointLit.quadFallOff);
 		}
 		
 		//Draw cube
@@ -188,9 +196,20 @@ int main() {
 		//Draw UI
 		ImGui::Begin("Settings");
 
-		ImGui::ColorEdit3("Light Color", &lightColor.r);
-		ImGui::DragFloat3("Light Position", &lightTransform.position.x);
+		ImGui::DragFloat3("Direction", &dirLit.dir.x);
+		ImGui::SliderFloat("Intensity", &dirLit.intensity, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Color", &dirLit.color.r);
+	
+
 		ImGui::End();
+
+		ImGui::Begin("Directional Light");
+		ImGui::End();
+		ImGui::Begin("Point Light");
+		ImGui::End();
+		ImGui::Begin("Spot Light");
+		ImGui::End();
+
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
