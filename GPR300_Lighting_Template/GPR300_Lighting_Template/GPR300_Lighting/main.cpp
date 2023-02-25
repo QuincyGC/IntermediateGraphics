@@ -193,23 +193,41 @@ int main() {
 		unlitShader.setVec3("_Color", lightColor);
 		sphereMesh.draw();
 
-		//Draw UI
-		ImGui::Begin("Settings");
 
+		//Draw UI
+		//Material
+		ImGui::Begin("Material");
+		ImGui::SliderFloat("AmbientK", &material.AmbientK, 0,1);
+		ImGui::SliderFloat("DiffuseK", &material.DiffuseK, 0, 1);
+		ImGui::SliderFloat("SpecularK", &material.SpecularK,.1, 1);
+		ImGui::SliderFloat("Direction", &material.Shininess,1, 512);
+		ImGui::ColorEdit3("Color", &material.color.r);
+		
+		ImGui::End();
+		//Directional
+		ImGui::Begin("Directional Light");
 		ImGui::DragFloat3("Direction", &dirLit.dir.x);
 		ImGui::SliderFloat("Intensity", &dirLit.intensity, 0.0f, 1.0f);
 		ImGui::ColorEdit3("Color", &dirLit.color.r);
-	
-
 		ImGui::End();
-
-		ImGui::Begin("Directional Light");
-		ImGui::End();
+		//Point
 		ImGui::Begin("Point Light");
-		ImGui::End();
-		ImGui::Begin("Spot Light");
+		ImGui::DragFloat3("Position", &pointLit.pos.x);
+		ImGui::SliderFloat("linearFallOff", &pointLit.linearFallOff,0, 1);
+		ImGui::SliderFloat("quadFallOff", &pointLit.quadFallOff, 0, 1);
+		ImGui::SliderFloat("Intensity", &pointLit.intensity, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Color", &pointLit.color.r);
 		ImGui::End();
 
+		//Spot
+		ImGui::Begin("Spot Light");
+		ImGui::DragFloat3("Direction", &spotLit.direction.x);
+		ImGui::DragFloat3("Position", &spotLit.pos.x);
+		ImGui::SliderFloat("Intensity", &spotLit.intensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("MinAngle", &spotLit.minAngle, 0.0f, 359.0f);
+		ImGui::SliderFloat("MaxAngle", &spotLit.maxAngle, 0.0f, 359.0f);
+		ImGui::ColorEdit3("Color", &spotLit.color.r);
+		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

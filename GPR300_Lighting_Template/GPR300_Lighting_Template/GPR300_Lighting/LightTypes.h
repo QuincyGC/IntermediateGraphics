@@ -42,12 +42,12 @@ struct PointLight
 struct SpotLight
 {
     glm::vec3 color;
-    glm::vec3 dir;
+    glm::vec3 direction;
     glm::vec3 pos;
-    glm::vec3 intensity;
+    float intensity;
     float linAttenuation;
     float minAngle;
-    float MaxAngle;
+    float maxAngle;
 };
 
 struct Material

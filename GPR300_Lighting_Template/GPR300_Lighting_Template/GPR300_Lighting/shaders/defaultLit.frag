@@ -24,10 +24,10 @@ struct SpotLight{
     vec3 color;
     vec3 direction;
     vec3 pos;
-    vec3 intensity;
+    float intensity;
     float linAttenuation;
     float minAngle;
-    float MaxAngle;
+    float maxAngle;
 };
 
 //For the materials being effected by light
@@ -100,7 +100,6 @@ vec3 pointLit(PointLight pointLight, vec3 normal)
 {
     float constCoefficient = 1;
    
-
     vec3 lightDir = normalize(pointLight.pos - v_out.WorldPosition);
     float dist = length(pointLight.pos - v_out.WorldPosition);
     float attenuation = 1 / (constCoefficient + (pointLight.linearFallOff * dist) + (pointLight.quadFallOff * pow(dist,2)));
@@ -113,7 +112,7 @@ vec3 pointLit(PointLight pointLight, vec3 normal)
 
      vec3 result = (ambient + diffuse + specular) * pointLight.color * attenuation;
 
-     return vec3(0);
+     return result;
 };
 
 vec3 spotLit()
@@ -133,6 +132,12 @@ void main(){
     vec3 cameraDir = normalize(camera.pos - v_out.WorldPosition);
 
     vec3 result = dirLit(dLit, normal);
+   
+    for (int i = 0; i < MAX_LIGHTS; i++)
+    {
+        result += pointLit(pLit[i], normal);
+    }
+    
 
     FragColor = vec4((result * material.color),1.0f); //abs(normal)
 }
