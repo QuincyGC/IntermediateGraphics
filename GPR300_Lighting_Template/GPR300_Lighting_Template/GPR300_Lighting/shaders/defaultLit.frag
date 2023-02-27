@@ -25,7 +25,7 @@ struct SpotLight{
     vec3 direction;
     vec3 pos;
     float intensity;
-    float linAttenuation;
+    float fallOffCurve;
     float minAngle;
     float maxAngle;
 };
@@ -102,6 +102,7 @@ vec3 pointLit(PointLight pointLight, vec3 normal)
    
     vec3 lightDir = normalize(pointLight.pos - v_out.WorldPosition);
     float dist = length(pointLight.pos - v_out.WorldPosition);
+
     float attenuation = 1 / (constCoefficient + (pointLight.linearFallOff * dist) + (pointLight.quadFallOff * pow(dist,2)));
 
     vec3 reflectDir = reflect(-lightDir, normal);
@@ -115,16 +116,23 @@ vec3 pointLit(PointLight pointLight, vec3 normal)
      return result;
 };
 
-vec3 spotLit()
+vec3 spotLit(SpotLight sLit, vec3 normal)
 {
-    vec3 color;
-    vec3 dir;
-    vec3 pos;
-    vec3 intensity;
-    float linAttenuation;
-    float minAngle;
-    float MaxAngle;
-     return vec3(0);
+     vec3 lightDir = normalize(sLit.pos - v_out.WorldPosition);
+     vec3 reflectDir = reflect(-lightDir, normal);
+     float theta = dot(-lightDir, normalize(sLit.direction));
+
+     float ambient = Ambient(sLit.intensity);
+     float diffuse = Diffuse(sLit.intensity, lightDir);
+     float specular = Specular(reflectDir, sLit.intensity);
+
+     float clampedVal = clamp((theta - sLit.maxAngle) / (sLit.minAngle - sLit.maxAngle), 0.0, 1.0);
+
+     float attenuation = pow(clampedVal, sLit.fallOffCurve);
+
+     vec3 result = (ambient + diffuse + specular) * sLit.color * attenuation;
+
+     return result;
 };
 
 void main(){      
@@ -138,6 +146,7 @@ void main(){
         result += pointLit(pLit[i], normal);
     }
     
+    result += spotLit(sLit, normal);
 
     FragColor = vec4((result * material.color),1.0f); //abs(normal)
 }

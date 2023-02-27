@@ -37,7 +37,7 @@ bool wireFrame = false;
 
 SpotLight spotLit;
 DirectionalLight dirLit;
-PointLight pointLit;
+PointLight pointLit[2];
 Material material;
 //*********************************
 
@@ -143,6 +143,7 @@ int main() {
 
 		//Camere and Material
 		litShader.setVec3("camera.pos", camera.getPosition());
+
 		litShader.setFloat("material.AmbientK", material.AmbientK);
 		litShader.setFloat("material.DiffuseK", material.DiffuseK);
 		litShader.setFloat("material.SpecularK", material.SpecularK);
@@ -155,19 +156,24 @@ int main() {
 		litShader.setFloat("dLit.intensity", dirLit.intensity);
 
 
-
 		//Point Light
 		for (size_t i = 0; i < 2; i++)
 		{
-			/*litShader.setVec3("_Lights[" + std::to_string(i) + "].position", lightTransform.position);
-			litShader.setFloat("_Lights[" + std::to_string(i) + "].intensity", light.intensity);
-			litShader.setVec3("_Lights[" + std::to_string(i) + "].color", light.color);*/
-			litShader.setVec3("pLit[" + std::to_string(i) + "].color", pointLit.color);
-			litShader.setVec3("pLit[" + std::to_string(i) + "].pos", pointLit.pos);
-			litShader.setFloat("pLit[" + std::to_string(i) + "].intensity", pointLit.intensity);
-			litShader.setFloat("pLit[" + std::to_string(i) + "].linearFallOff", pointLit.linearFallOff);
-			litShader.setFloat("pLit[" + std::to_string(i) + "].quadFallOff", pointLit.quadFallOff);
+			litShader.setVec3("pLit[" + std::to_string(i) + "].color", pointLit[i].color);
+			litShader.setVec3("pLit[" + std::to_string(i) + "].pos", pointLit[i].pos);
+			litShader.setFloat("pLit[" + std::to_string(i) + "].intensity", pointLit[i].intensity);
+			litShader.setFloat("pLit[" + std::to_string(i) + "].linearFallOff", pointLit[i].linearFallOff);
+			litShader.setFloat("pLit[" + std::to_string(i) + "].quadFallOff", pointLit[i].quadFallOff);
 		}
+
+		//Spot Light
+		litShader.setFloat("sLit.minAngle", spotLit.minAngle);
+		litShader.setFloat("sLit.maxAngle", spotLit.maxAngle);
+		litShader.setVec3("sLit.pos", spotLit.pos);
+		litShader.setVec3("sLit.direction", spotLit.direction);
+		litShader.setVec3("sLit.color", spotLit.color);
+		litShader.setFloat("sLit.intensity", spotLit.intensity);
+		litShader.setFloat("sLit.fallOffCurve", spotLit.fallOffCurve);
 		
 		//Draw cube
 		litShader.setMat4("_Model", cubeTransform.getModelMatrix());
@@ -202,21 +208,40 @@ int main() {
 		ImGui::SliderFloat("SpecularK", &material.SpecularK,.1, 1);
 		ImGui::SliderFloat("Direction", &material.Shininess,1, 512);
 		ImGui::ColorEdit3("Color", &material.color.r);
-		
 		ImGui::End();
+
 		//Directional
 		ImGui::Begin("Directional Light");
 		ImGui::DragFloat3("Direction", &dirLit.dir.x);
 		ImGui::SliderFloat("Intensity", &dirLit.intensity, 0.0f, 1.0f);
 		ImGui::ColorEdit3("Color", &dirLit.color.r);
 		ImGui::End();
+
 		//Point
-		ImGui::Begin("Point Light");
-		ImGui::DragFloat3("Position", &pointLit.pos.x);
-		ImGui::SliderFloat("linearFallOff", &pointLit.linearFallOff,0, 1);
-		ImGui::SliderFloat("quadFallOff", &pointLit.quadFallOff, 0, 1);
-		ImGui::SliderFloat("Intensity", &pointLit.intensity, 0.0f, 1.0f);
-		ImGui::ColorEdit3("Color", &pointLit.color.r);
+	/*	for (size_t i = 0; i < 2; i++)
+		{
+			ImGui::Begin("Point Light");
+			ImGui::DragFloat3("Position", &pointLit[i].pos.x);
+			ImGui::SliderFloat("linearFallOff", &pointLit[i].linearFallOff, 0, 1);
+			ImGui::SliderFloat("quadFallOff", &pointLit[i].quadFallOff, 0, 1);
+			ImGui::SliderFloat("Intensity", &pointLit[i].intensity, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Color", &pointLit[i].color.r);
+			ImGui::End();
+		}*/
+		ImGui::Begin("Point Light 1");
+		ImGui::DragFloat3("Position", &pointLit[0].pos.x);
+		ImGui::SliderFloat("linearFallOff", &pointLit[0].linearFallOff, 0, 1);
+		ImGui::SliderFloat("quadFallOff", &pointLit[0].quadFallOff, 0, 1);
+		ImGui::SliderFloat("Intensity", &pointLit[0].intensity, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Color", &pointLit[0].color.r);
+		ImGui::End();
+
+		ImGui::Begin("Point Light 2");
+		ImGui::DragFloat3("Position", &pointLit[1].pos.x);
+		ImGui::SliderFloat("linearFallOff", &pointLit[1].linearFallOff, 0, 1);
+		ImGui::SliderFloat("quadFallOff", &pointLit[1].quadFallOff, 0, 1);
+		ImGui::SliderFloat("Intensity", &pointLit[1].intensity, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Color", &pointLit[1].color.r);
 		ImGui::End();
 
 		//Spot
@@ -224,8 +249,9 @@ int main() {
 		ImGui::DragFloat3("Direction", &spotLit.direction.x);
 		ImGui::DragFloat3("Position", &spotLit.pos.x);
 		ImGui::SliderFloat("Intensity", &spotLit.intensity, 0.0f, 1.0f);
-		ImGui::SliderFloat("MinAngle", &spotLit.minAngle, 0.0f, 359.0f);
-		ImGui::SliderFloat("MaxAngle", &spotLit.maxAngle, 0.0f, 359.0f);
+		ImGui::SliderFloat("fallOffCurve", &spotLit.fallOffCurve, 1.0f, 4.0f);
+		ImGui::SliderFloat("MinAngle", &spotLit.minAngle, 0.0f, 120.0f);
+		ImGui::SliderFloat("MaxAngle", &spotLit.maxAngle, 0.0f, 120.0f);
 		ImGui::ColorEdit3("Color", &spotLit.color.r);
 		ImGui::End();
 
