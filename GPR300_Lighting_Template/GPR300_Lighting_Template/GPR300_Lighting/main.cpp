@@ -70,10 +70,19 @@ SpotLight spotLit;
 DirectionalLight dirLit;
 PointLight pointLit[2];
 Material material;
+
+//Texture Bool
+struct TextureChose
+{
+	int ChosenTxtr = 0;
+};
+
+TextureChose txtChoice; 
 //*********************************
 
 //Filename 
 const char* woodFile = "./WoodFloor.png";
+const char* marleFile = "./Marble.png";
 
 GLuint createTexture(const char* filePath)
 {
@@ -143,6 +152,7 @@ int main() {
 
 	//TEXTURE OF WOOD from File
 	GLuint wood = createTexture(woodFile);
+	GLuint marble = createTexture(marleFile);
 
 	ew::MeshData cubeMeshData;
 	ew::createCube(1.0f, 1.0f, 1.0f, cubeMeshData);
@@ -188,6 +198,7 @@ int main() {
 	lightTransform.scale = glm::vec3(0.5f);
 	lightTransform.position = glm::vec3(0.0f, 5.0f, 0.0f);
 
+
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 		glClearColor(bgColor.r,bgColor.g,bgColor.b, 1.0f);
@@ -207,10 +218,18 @@ int main() {
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
 
+		//Choose texture
+		litShader.setInt("_ChosenTexture", txtChoice.ChosenTxtr);
+
 		//Activate Texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wood);
 		litShader.setInt("_WoodTexture", 0); //this brings it to the shaders (It is the sampler2D
+
+		//Activate Texture
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, marble);
+		litShader.setInt("_MarbleTexture", 1); //this brings it to the shaders (It is the sampler2D
 
 		//Animate texture
 		litShader.setFloat("_Time", time);
@@ -291,17 +310,6 @@ int main() {
 		ImGui::ColorEdit3("Color", &dirLit.color.r);
 		ImGui::End();
 
-		//Point
-	/*	for (size_t i = 0; i < 2; i++)
-		{
-			ImGui::Begin("Point Light");
-			ImGui::DragFloat3("Position", &pointLit[i].pos.x);
-			ImGui::SliderFloat("linearFallOff", &pointLit[i].linearFallOff, 0, 1);
-			ImGui::SliderFloat("quadFallOff", &pointLit[i].quadFallOff, 0, 1);
-			ImGui::SliderFloat("Intensity", &pointLit[i].intensity, 0.0f, 1.0f);
-			ImGui::ColorEdit3("Color", &pointLit[i].color.r);
-			ImGui::End();
-		}*/
 		ImGui::Begin("Point Light 1");
 		ImGui::DragFloat3("Position", &pointLit[0].pos.x);
 		ImGui::SliderFloat("linearFallOff", &pointLit[0].linearFallOff, 0, 1);
@@ -329,9 +337,9 @@ int main() {
 		ImGui::ColorEdit3("Color", &spotLit.color.r);
 		ImGui::End();
 
-		/*ImGui::Begin("Texture");
-		ImGui::SliderFloat("Intensity", &, -1.0f, 1.0f);
-		ImGui::End();*/
+		ImGui::Begin("Texture");
+		ImGui::SliderInt("Switch Texture", &txtChoice.ChosenTxtr, 0.0f, 1.0f);
+		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
