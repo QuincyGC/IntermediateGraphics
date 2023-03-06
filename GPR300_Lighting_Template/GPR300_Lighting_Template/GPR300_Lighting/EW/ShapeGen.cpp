@@ -164,7 +164,7 @@ namespace ew {
 				//UV Mapping
 				glm::vec2 uv = glm::vec2(atan(z / x) / glm::two_pi<float>(), acos(y) / glm::pi<float>());
 
-				printf("UV Map Sphere: %f", atan(z / x) / glm::two_pi<float>());
+				//printf("UV Map Sphere: %f", atan(z / x) / glm::two_pi<float>());
 
 				meshData.vertices.push_back({ position, normal, uv});
 			}

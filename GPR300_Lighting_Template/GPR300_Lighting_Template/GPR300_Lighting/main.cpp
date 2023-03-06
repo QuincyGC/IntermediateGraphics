@@ -72,40 +72,23 @@ PointLight pointLit[2];
 Material material;
 //*********************************
 
-//const char* 
-const char* woodFile = "WoodFloor";
+//Filename 
+const char* woodFile = "./WoodFloor.png";
 
 GLuint createTexture(const char* filePath)
 {
 	//Generate a texture name
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint txtr;
+	glGenTextures(1, &txtr);
+	glBindTexture(GL_TEXTURE_2D, txtr);
 
-	int width, height, numComponents;
+	int width, height, compNum;
 
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* textureData = stbi_load(filePath, &width, &height, &numComponents, 0);
+	unsigned char* txtrData = stbi_load(filePath, &width, &height, &compNum, 0);
 
-	switch (numComponents)
-	{
-	case 1:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_R, width, height, 0, GL_R, GL_UNSIGNED_BYTE, textureData);
-		break;
-	case 2:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, textureData);
-		break;
-	case 3:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
-		break;
-	case 4:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
-		break;
-	default:
-		printf("Texture couldn't create");
-		break;
-	}
-
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, txtrData);
+	
 	//Wrap 
 	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//horiz
 	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // vertical
@@ -116,7 +99,7 @@ GLuint createTexture(const char* filePath)
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	return texture;
+	return txtr;
 
 }
 
@@ -158,7 +141,7 @@ int main() {
 	//Used to draw light sphere
 	Shader unlitShader("shaders/defaultLit.vert", "shaders/unlit.frag");
 
-	//TEXTURE OF WOOD
+	//TEXTURE OF WOOD from File
 	GLuint wood = createTexture(woodFile);
 
 	ew::MeshData cubeMeshData;
@@ -214,6 +197,7 @@ int main() {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		//TIMER
 		float time = (float)glfwGetTime();
 		deltaTime = time - lastFrameTime;
 		lastFrameTime = time;
@@ -223,9 +207,13 @@ int main() {
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
 
+		//Activate Texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wood);
-		litShader.setInt("_WoodTexture", 0);
+		litShader.setInt("_WoodTexture", 0); //this brings it to the shaders (It is the sampler2D
+
+		//Animate texture
+		litShader.setFloat("_Time", time);
 
 		//Camere and Material
 		litShader.setVec3("camera.pos", camera.getPosition());
@@ -340,6 +328,10 @@ int main() {
 		ImGui::SliderFloat("MaxAngle", &spotLit.maxAngle, 0.0f, 120.0f);
 		ImGui::ColorEdit3("Color", &spotLit.color.r);
 		ImGui::End();
+
+		/*ImGui::Begin("Texture");
+		ImGui::SliderFloat("Intensity", &, -1.0f, 1.0f);
+		ImGui::End();*/
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -137,6 +137,7 @@ vec3 spotLit(SpotLight sLit, vec3 normal)
 
 in vec2 uv;
 uniform sampler2D _WoodTexture;
+uniform float _Time;
 
 void main(){      
     vec3 normal = normalize(v_out.WorldNormal);
@@ -152,8 +153,8 @@ void main(){
     result += spotLit(sLit, normal);
 
     //currently problems
-    FragColor =  vec4(uv.x, uv.y, (uv.x + uv.y)/2, 1.0f) * texture(_WoodTexture, uv); //vec4((result * material.color),1.0f); 
+    FragColor = vec4((result * texture(_WoodTexture, vec2(uv.x * (_Time/ 2), uv.y)).rgb) * material.color, 1.0f); //texture(_WoodTexture, uv); //vec4((result * material.color),1.0f); 
    
-
+   //vec4(uv.x, uv.y, (uv.x + uv.y)/2, 1.0f) * 
     //mix(texture(_Steeltexture,uv)
 }
