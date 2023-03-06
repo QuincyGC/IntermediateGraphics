@@ -139,7 +139,7 @@ namespace ew {
 		float bottomY = -radius;
 
 		unsigned int topIndex = 0;
-		meshData.vertices.push_back({ glm::vec3(0,topY,0),glm::vec3(0,1,0), glm::vec2(0,0)}); //added last vertices
+		meshData.vertices.push_back({ glm::vec3(0,topY,0),glm::vec3(0,1,0), glm::vec2(0,0)}); //added last vect
 
 		//Angle between segments
 		float thetaStep = (2.0f * glm::pi<float>()) / (float)numSegments;

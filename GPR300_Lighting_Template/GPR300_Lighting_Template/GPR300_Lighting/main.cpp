@@ -1,11 +1,16 @@
 #include "Lighttypes.h"
 
+#include "GL/glew.h"
 #include "GLFW/glfw3.h"
+
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <stdio.h>
+#include <cstdlib>
+#include <stdlib.h>
+#include <time.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -15,11 +20,16 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "EW/Shader.h"
+#include "EW/ShapeGen.h"
+#include "EW/Shader.h"
 #include "EW/EwMath.h"
 #include "EW/Camera.h"
 #include "EW/Mesh.h"
 #include "EW/Transform.h"
 #include "EW/ShapeGen.h"
+#include <iostream>
+
+using namespace std;
 
 void processInput(GLFWwindow* window);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
@@ -62,6 +72,54 @@ PointLight pointLit[2];
 Material material;
 //*********************************
 
+//const char* 
+const char* woodFile = "WoodFloor";
+
+GLuint createTexture(const char* filePath)
+{
+	//Generate a texture name
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	int width, height, numComponents;
+
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* textureData = stbi_load(filePath, &width, &height, &numComponents, 0);
+
+	switch (numComponents)
+	{
+	case 1:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R, width, height, 0, GL_R, GL_UNSIGNED_BYTE, textureData);
+		break;
+	case 2:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, textureData);
+		break;
+	case 3:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
+		break;
+	case 4:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+		break;
+	default:
+		printf("Texture couldn't create");
+		break;
+	}
+
+	//Wrap 
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//horiz
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP); // vertical
+
+	//Zoom
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//magnify
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//min
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	return texture;
+
+}
+
 int main() {
 	if (!glfwInit()) {
 		printf("glfw failed to init");
@@ -99,6 +157,9 @@ int main() {
 
 	//Used to draw light sphere
 	Shader unlitShader("shaders/defaultLit.vert", "shaders/unlit.frag");
+
+	//TEXTURE OF WOOD
+	GLuint wood = createTexture(woodFile);
 
 	ew::MeshData cubeMeshData;
 	ew::createCube(1.0f, 1.0f, 1.0f, cubeMeshData);
@@ -161,6 +222,10 @@ int main() {
 		litShader.use();
 		litShader.setMat4("_Projection", camera.getProjectionMatrix());
 		litShader.setMat4("_View", camera.getViewMatrix());
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, wood);
+		litShader.setInt("_WoodTexture", 0);
 
 		//Camere and Material
 		litShader.setVec3("camera.pos", camera.getPosition());
