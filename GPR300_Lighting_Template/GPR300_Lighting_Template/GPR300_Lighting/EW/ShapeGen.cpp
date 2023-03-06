@@ -11,10 +11,11 @@ namespace ew {
 		float halfHeight = height / 2.0f;
 		Vertex vertices[4] = {
 			//Front face
-			{glm::vec3(-halfWidth, 0, -halfHeight), glm::vec3(0,1,0)}, //BL
-			{glm::vec3(+halfWidth, 0, -halfHeight), glm::vec3(0,1,0)}, //BR
-			{glm::vec3(+halfWidth, 0, +halfHeight), glm::vec3(0,1,0)}, //TR
-			{glm::vec3(-halfWidth, 0, +halfHeight), glm::vec3(0,1,0)} //TL
+			//Added UV coord range
+			{glm::vec3(-halfWidth, 0, -halfHeight), glm::vec3(0,1,0), glm::vec2(0,0)}, //BL
+			{glm::vec3(+halfWidth, 0, -halfHeight), glm::vec3(0,1,0), glm::vec2(1,0)}, //BR
+			{glm::vec3(+halfWidth, 0, +halfHeight), glm::vec3(0,1,0), glm::vec2(1,1)}, //TR
+			{glm::vec3(-halfWidth, 0, +halfHeight), glm::vec3(0,1,0), glm::vec2(0,1)} //TL
 		};
 		meshData.vertices.assign(&vertices[0], &vertices[4]);
 		unsigned int indices[6] = {
@@ -32,10 +33,11 @@ namespace ew {
 		float halfHeight = height / 2.0f;
 		Vertex vertices[4] = {
 			//Front face
-			{glm::vec3(-halfWidth, -halfHeight, 0), glm::vec3(0,0,1)}, //BL
-			{glm::vec3(+halfWidth, -halfHeight, 0), glm::vec3(0,0,1)}, //BR
-			{glm::vec3(+halfWidth, +halfHeight, 0), glm::vec3(0,0,1)}, //TR
-			{glm::vec3(-halfWidth, +halfHeight, 0), glm::vec3(0,0,1)} //TL
+			//Added UV coord range
+			{glm::vec3(-halfWidth, -halfHeight, 0), glm::vec3(0,0,1), glm::vec2(0,0)}, //BL
+			{glm::vec3(+halfWidth, -halfHeight, 0), glm::vec3(0,0,1), glm::vec2(1,0)}, //BR
+			{glm::vec3(+halfWidth, +halfHeight, 0), glm::vec3(0,0,1), glm::vec2(1,1)}, //TR
+			{glm::vec3(-halfWidth, +halfHeight, 0), glm::vec3(0,0,1), glm::vec2(0,1)} //TL
 		};
 		meshData.vertices.assign(&vertices[0], &vertices[4]);
 		unsigned int indices[6] = {
@@ -59,40 +61,41 @@ namespace ew {
 		//-------------
 		Vertex vertices[24] = {
 			//Front face
-			{glm::vec3(-halfWidth, -halfHeight, +halfDepth), glm::vec3(0,0,1)}, //BL
-			{glm::vec3(+halfWidth, -halfHeight, +halfDepth), glm::vec3(0,0,1)}, //BR
-			{glm::vec3(+halfWidth, +halfHeight, +halfDepth), glm::vec3(0,0,1)}, //TR
-			{glm::vec3(-halfWidth, +halfHeight, +halfDepth), glm::vec3(0,0,1)}, //TL
+			//Added UV coord range
+			{glm::vec3(-halfWidth, -halfHeight, +halfDepth), glm::vec3(0,0,1), glm::vec2(0,0)}, //BL
+			{glm::vec3(+halfWidth, -halfHeight, +halfDepth), glm::vec3(0,0,1), glm::vec2(1,0)}, //BR
+			{glm::vec3(+halfWidth, +halfHeight, +halfDepth), glm::vec3(0,0,1), glm::vec2(1,1)}, //TR
+			{glm::vec3(-halfWidth, +halfHeight, +halfDepth), glm::vec3(0,0,1), glm::vec2(0,1)}, //TL
 
 			//Back face
-			{glm::vec3(+halfWidth, -halfHeight, -halfDepth), glm::vec3(0,0,-1)}, //BL
-			{glm::vec3(-halfWidth, -halfHeight, -halfDepth), glm::vec3(0,0,-1)}, //BR
-			{glm::vec3(-halfWidth, +halfHeight, -halfDepth), glm::vec3(0,0,-1)}, //TR
-			{glm::vec3(+halfWidth, +halfHeight, -halfDepth), glm::vec3(0,0,-1)}, //TL
+			{glm::vec3(+halfWidth, -halfHeight, -halfDepth), glm::vec3(0,0,-1), glm::vec2(0,0)}, //BL
+			{glm::vec3(-halfWidth, -halfHeight, -halfDepth), glm::vec3(0,0,-1), glm::vec2(1,0)}, //BR
+			{glm::vec3(-halfWidth, +halfHeight, -halfDepth), glm::vec3(0,0,-1), glm::vec2(1,1)}, //TR
+			{glm::vec3(+halfWidth, +halfHeight, -halfDepth), glm::vec3(0,0,-1), glm::vec2(0,1)}, //TL
 
 			//Right face
-			{glm::vec3(+halfWidth, -halfHeight, +halfDepth), glm::vec3(1,0,0)}, //BL
-			{glm::vec3(+halfWidth, -halfHeight, -halfDepth), glm::vec3(1,0,0)}, //BR
-			{glm::vec3(+halfWidth, +halfHeight, -halfDepth), glm::vec3(1,0,0)}, //TR
-			{glm::vec3(+halfWidth, +halfHeight, +halfDepth), glm::vec3(1,0,0)}, //TL
+			{glm::vec3(+halfWidth, -halfHeight, +halfDepth), glm::vec3(1,0,0), glm::vec2(0,0)}, //BL
+			{glm::vec3(+halfWidth, -halfHeight, -halfDepth), glm::vec3(1,0,0), glm::vec2(1,0)}, //BR
+			{glm::vec3(+halfWidth, +halfHeight, -halfDepth), glm::vec3(1,0,0), glm::vec2(1,1)}, //TR
+			{glm::vec3(+halfWidth, +halfHeight, +halfDepth), glm::vec3(1,0,0), glm::vec2(0,1)}, //TL
 
 			//Left face
-			{glm::vec3(-halfWidth, -halfHeight, -halfDepth), glm::vec3(-1,0,0)}, //BL
-			{glm::vec3(-halfWidth, -halfHeight, +halfDepth), glm::vec3(-1,0,0)}, //BR
-			{glm::vec3(-halfWidth, +halfHeight, +halfDepth), glm::vec3(-1,0,0)}, //TR
-			{glm::vec3(-halfWidth, +halfHeight, -halfDepth), glm::vec3(-1,0,0)}, //TL
+			{glm::vec3(-halfWidth, -halfHeight, -halfDepth), glm::vec3(-1,0,0), glm::vec2(0,0)}, //BL
+			{glm::vec3(-halfWidth, -halfHeight, +halfDepth), glm::vec3(-1,0,0), glm::vec2(1,0)}, //BR
+			{glm::vec3(-halfWidth, +halfHeight, +halfDepth), glm::vec3(-1,0,0), glm::vec2(1,1)}, //TR
+			{glm::vec3(-halfWidth, +halfHeight, -halfDepth), glm::vec3(-1,0,0), glm::vec2(0,1)}, //TL
 
 			//Top face
-			{glm::vec3(-halfWidth, +halfHeight, +halfDepth), glm::vec3(0,1,0)}, //BL
-			{glm::vec3(+halfWidth, +halfHeight, +halfDepth), glm::vec3(0,1,0)}, //BR
-			{glm::vec3(+halfWidth, +halfHeight, -halfDepth), glm::vec3(0,1,0)}, //TR
-			{glm::vec3(-halfWidth, +halfHeight, -halfDepth), glm::vec3(0,1,0)}, //TL
+			{glm::vec3(-halfWidth, +halfHeight, +halfDepth), glm::vec3(0,1,0), glm::vec2(0,0)}, //BL
+			{glm::vec3(+halfWidth, +halfHeight, +halfDepth), glm::vec3(0,1,0), glm::vec2(1,0)}, //BR
+			{glm::vec3(+halfWidth, +halfHeight, -halfDepth), glm::vec3(0,1,0), glm::vec2(1,1)}, //TR
+			{glm::vec3(-halfWidth, +halfHeight, -halfDepth), glm::vec3(0,1,0), glm::vec2(0,1)}, //TL
 
 			//Bottom face
-			{glm::vec3(-halfWidth, -halfHeight, -halfDepth), glm::vec3(0,-1,0)}, //BL
-			{glm::vec3(+halfWidth, -halfHeight, -halfDepth), glm::vec3(0,-1,0)}, //BR
-			{glm::vec3(+halfWidth, -halfHeight, +halfDepth), glm::vec3(0,-1,0)}, //TR
-			{glm::vec3(-halfWidth, -halfHeight, +halfDepth), glm::vec3(0,-1,0)}, //TL
+			{glm::vec3(-halfWidth, -halfHeight, -halfDepth), glm::vec3(0,-1,0), glm::vec2(0,0)}, //BL
+			{glm::vec3(+halfWidth, -halfHeight, -halfDepth), glm::vec3(0,-1,0), glm::vec2(1,0)}, //BR
+			{glm::vec3(+halfWidth, -halfHeight, +halfDepth), glm::vec3(0,-1,0), glm::vec2(1,1)}, //TR
+			{glm::vec3(-halfWidth, -halfHeight, +halfDepth), glm::vec3(0,-1,0), glm::vec2(0,1)}, //TL
 		};
 		meshData.vertices.assign(&vertices[0], &vertices[24]);
 
@@ -136,7 +139,7 @@ namespace ew {
 		float bottomY = -radius;
 
 		unsigned int topIndex = 0;
-		meshData.vertices.push_back({ glm::vec3(0,topY,0),glm::vec3(0,1,0) });
+		meshData.vertices.push_back({ glm::vec3(0,topY,0),glm::vec3(0,1,0), glm::vec2(0,0)}); //added last vertices
 
 		//Angle between segments
 		float thetaStep = (2.0f * glm::pi<float>()) / (float)numSegments;
@@ -158,7 +161,12 @@ namespace ew {
 				glm::vec3 position = glm::vec3(x, y, z);
 				glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
 
-				meshData.vertices.push_back({ position, normal });
+				//UV Mapping
+				glm::vec2 uv = glm:vec2(atan(z / x) / glm::two_pi<float>()), acos(y) / glm::pi<float>();
+
+				printf("UV Map Sphere: %f", atan(z / x) / glm::two_pi<float>());
+
+				meshData.vertices.push_back({ position, normal, uv});
 			}
 		}
 

@@ -1,5 +1,26 @@
 #include "Lighttypes.h"
 
+#include "GLFW/glfw3.h"
+#include <glm/matrix.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <stdio.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
+#include "EW/Shader.h"
+#include "EW/EwMath.h"
+#include "EW/Camera.h"
+#include "EW/Mesh.h"
+#include "EW/Transform.h"
+#include "EW/ShapeGen.h"
+
 void processInput(GLFWwindow* window);
 void resizeFrameBufferCallback(GLFWwindow* window, int width, int height);
 void keyboardCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods);
