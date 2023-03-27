@@ -15,7 +15,7 @@ out struct Vertex{
 }v_out;
 
 out vec2 uv;
-out vec3 normal;
+vec3 mapNormal;
 out mat3 TBN;
 
 
@@ -23,26 +23,30 @@ out mat3 TBN;
 void main(){    
     v_out.WorldPosition = vec3(_Model * vec4(vPos,1));
 
+    uv = vUV;
     vec3 normalCalc = vNormal;
 
+    //https://learnopengl.com/Advanced-Lighting/Normal-Mapping 
     v_out.Tangent = normalize(vec3(_Model * vec4(vTangent, 0)));
-    uv = vUV;
+
 
     vec3 btCalc = cross(normalCalc, v_out.Tangent);
     
     vec3 BT = normalize(vec3(_Model * vec4(btCalc, 0)));
-    normal = normalize(vec3(_Model * vec4(normalCalc, 0)));
+    mapNormal = normalize(vec3(_Model * vec4(normalCalc, 0)));
 
+    //local space
     TBN = mat3(
-        v_out.Tangent.x, BT.x, normal.x,
-        v_out.Tangent.y, BT.y, normal.y,
-        v_out.Tangent.z, BT.z, normal.z
+        v_out.Tangent.x, BT.x, mapNormal.x,
+        v_out.Tangent.y, BT.y, mapNormal.y,
+        v_out.Tangent.z, BT.z, mapNormal.z
         );
 
+    //TBN to world space
     TBN = transpose(inverse(mat3(_Model))) * TBN;
-    normal = TBN * normal;
+    mapNormal = TBN * mapNormal;
 
-    v_out.WorldNormal = normal;
+    v_out.WorldNormal = mapNormal;
 
     gl_Position = _Projection * _View * _Model * vec4(vPos,1);
 }

@@ -4,6 +4,7 @@ out vec4 FragColor;
 in struct Vertex{
     vec3 WorldNormal;
     vec3 WorldPosition;
+    vec3 Tangent;
 }v_out;
 
 struct DirectionLight{
@@ -136,17 +137,30 @@ vec3 spotLit(SpotLight sLit, vec3 normal)
 };
 
 in vec2 uv;
-uniform sampler2D _WoodTexture;
-uniform sampler2D _MarbleTexture;
 uniform float _Time;
-uniform int _ChosenTexture;
-uniform bool _OnlyPoint;
 
-void main(){      
-    vec3 normal = normalize(v_out.WorldNormal);
+//texture
+uniform sampler2D _WoodTexture;
+//uniform sampler2D _MarbleTexture;
+uniform int _ChosenTexture;
+//controls
+uniform bool _OnlyPoint;
+//Normal Mapping
+uniform float _normMapIntensity;
+in mat3 TBN;
+uniform sampler2D _NormalMap;
+
+void main(){     
+
+    //Normal
+    vec3 normal = texture(_NormalMap, uv).rgb; //normal map range [0,1]
+    normal = (normal * 2.0) - 1; //range [-1,1]
+    normal *= vec3(_normMapIntensity, _normMapIntensity, 1); //change intensity
+
     vec3 cameraDir = normalize(camera.pos - v_out.WorldPosition);
     vec3 result;
 
+    //Lights
     if(_OnlyPoint == true)
     {
         result = pointLit(pLit[0], normal);
@@ -160,27 +174,23 @@ void main(){
     
         result += spotLit(sLit, normal);
     }
-    vec4 textureResult;
 
-    switch(_ChosenTexture)
-    {
-        // * (_Time/ 2)
-        case 0:
-         textureResult = vec4((result * texture(_WoodTexture, vec2(uv.x, uv.y)).rgb) * material.color, 1.0f);
-        break;
-        case 1:
-         textureResult = vec4((result * texture(_MarbleTexture, vec2(uv.x, uv.y)).rgb) * material.color, 1.0f);
-        break;
-        default:
-        break;
-    }
+    //texture
+    vec4 textureResult;
+//    switch(_ChosenTexture)
+//    {
+//        // * (_Time/ 2)
+//        case 0:
+    textureResult = vec4((result * texture(_WoodTexture, vec2(uv.x, uv.y)).rgb) * material.color, 1.0f);
+//        break;
+//        case 1:
+//         textureResult = vec4((result * texture(_MarbleTexture, vec2(uv.x, uv.y)).rgb) * material.color, 1.0f);
+//        break;
+//        default:
+//        break;
+//    }
 
 
     //currently problems
     FragColor = textureResult; //texture(_WoodTexture, uv); //vec4((result * material.color),1.0f); 
-   
-   //vec4(uv.x, uv.y, (uv.x + uv.y)/2, 1.0f) * 
-    //mix(texture(_Steeltexture,uv)
-
-    //dont do time vec3 normal intensity
 }

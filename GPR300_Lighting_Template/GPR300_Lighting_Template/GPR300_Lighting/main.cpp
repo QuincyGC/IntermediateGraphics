@@ -84,11 +84,17 @@ struct Controls
 
 TextureChose txtChoice; 
 Controls controls;
+
+//Normal Mapping
+
+float normMapIntensity;
+
 //*********************************
 
 //Filename 
 const char* woodFile = "./WoodFloor.png";
 const char* marleFile = "./Marble.png";
+const char* woodNormal = "./WoodFloor_NormalGL.png";
 
 GLuint createTexture(const char* filePath)
 {
@@ -159,6 +165,7 @@ int main() {
 	//TEXTURE OF WOOD from File
 	GLuint wood = createTexture(woodFile);
 	GLuint marble = createTexture(marleFile);
+	GLuint woodNormaltxtr = createTexture(woodNormal);
 
 	ew::MeshData cubeMeshData;
 	ew::createCube(1.0f, 1.0f, 1.0f, cubeMeshData);
@@ -232,16 +239,19 @@ int main() {
 
 		//Activate Texture
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, wood);
-		litShader.setInt("_WoodTexture", 0); //this brings it to the shaders (It is the sampler2D
+		glBindTexture(GL_TEXTURE_2D, woodNormaltxtr);
+		litShader.setInt("_NormalMap", 0); //this brings it to the shaders (It is the sampler2D
 
 		//Activate Texture
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, marble);
-		litShader.setInt("_MarbleTexture", 1); //this brings it to the shaders (It is the sampler2D
+		glBindTexture(GL_TEXTURE_2D, wood);
+		litShader.setInt("_WoodTexture", 1); //this brings it to the shaders (It is the sampler2D
 
 		//Animate texture
 		litShader.setFloat("_Time", time);
+
+		//NORMAL MAP
+		litShader.setFloat("_normMapIntensity", normMapIntensity);
 
 		//Camere and Material
 		litShader.setVec3("camera.pos", camera.getPosition());
@@ -323,7 +333,7 @@ int main() {
 		ImGui::DragFloat3("Position", &pointLit[0].pos.x);
 		ImGui::SliderFloat("linearFallOff", &pointLit[0].linearFallOff, 0, 1);
 		ImGui::SliderFloat("quadFallOff", &pointLit[0].quadFallOff, 0, 1);
-		ImGui::SliderFloat("Intensity", &pointLit[0].intensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("Intensity", &pointLit[0].intensity, 0.0f, 10.0f);
 		ImGui::ColorEdit3("Color", &pointLit[0].color.r);
 		ImGui::End();
 
@@ -346,9 +356,11 @@ int main() {
 		ImGui::ColorEdit3("Color", &spotLit.color.r);
 		ImGui::End();
 
-		ImGui::Begin("Texture & Options");
+		//Controls
+		ImGui::Begin("Controls");
 		ImGui::SliderInt("Switch Texture", &txtChoice.ChosenTxtr, 0.0f, 1.0f);
 		ImGui::Checkbox("Point Light Only", &controls.onePointLight);
+		ImGui::SliderFloat("Normal Map Intensity", &normMapIntensity, 0.0f, 1.0f);
 		ImGui::End();
 
 		ImGui::Render();
