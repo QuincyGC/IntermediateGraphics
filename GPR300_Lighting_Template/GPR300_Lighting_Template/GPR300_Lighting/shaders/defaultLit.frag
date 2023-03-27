@@ -181,4 +181,6 @@ void main(){
    
    //vec4(uv.x, uv.y, (uv.x + uv.y)/2, 1.0f) * 
     //mix(texture(_Steeltexture,uv)
+
+    //dont do time vec3 normal intensity
 }
