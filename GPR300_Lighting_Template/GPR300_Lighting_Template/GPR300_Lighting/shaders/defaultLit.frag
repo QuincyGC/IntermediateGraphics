@@ -140,20 +140,26 @@ uniform sampler2D _WoodTexture;
 uniform sampler2D _MarbleTexture;
 uniform float _Time;
 uniform int _ChosenTexture;
+uniform bool _OnlyPoint;
 
 void main(){      
     vec3 normal = normalize(v_out.WorldNormal);
     vec3 cameraDir = normalize(camera.pos - v_out.WorldPosition);
+    vec3 result;
 
-    vec3 result = dirLit(dLit, normal);
-   
-    for (int i = 0; i < MAX_LIGHTS; i++)
+    if(_OnlyPoint == true)
     {
-        result += pointLit(pLit[i], normal);
+        result = pointLit(pLit[0], normal);
     }
+    else{
+        result = dirLit(dLit, normal);
+        for (int i = 0; i < MAX_LIGHTS; i++)
+        {
+            result += pointLit(pLit[i], normal);
+        }
     
-    result += spotLit(sLit, normal);
-
+        result += spotLit(sLit, normal);
+    }
     vec4 textureResult;
 
     switch(_ChosenTexture)

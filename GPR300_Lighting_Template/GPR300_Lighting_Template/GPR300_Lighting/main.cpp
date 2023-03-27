@@ -77,7 +77,13 @@ struct TextureChose
 	int ChosenTxtr = 0;
 };
 
+struct Controls
+{
+	bool onePointLight = true;
+};
+
 TextureChose txtChoice; 
+Controls controls;
 //*********************************
 
 //Filename 
@@ -221,6 +227,9 @@ int main() {
 		//Choose texture
 		litShader.setInt("_ChosenTexture", txtChoice.ChosenTxtr);
 
+		//Controls
+		litShader.setInt("_OnlyPoint", controls.onePointLight);
+
 		//Activate Texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wood);
@@ -337,8 +346,9 @@ int main() {
 		ImGui::ColorEdit3("Color", &spotLit.color.r);
 		ImGui::End();
 
-		ImGui::Begin("Texture");
+		ImGui::Begin("Texture & Options");
 		ImGui::SliderInt("Switch Texture", &txtChoice.ChosenTxtr, 0.0f, 1.0f);
+		ImGui::Checkbox("Point Light Only", &controls.onePointLight);
 		ImGui::End();
 
 		ImGui::Render();

@@ -10,9 +10,12 @@ uniform mat4 _Projection;
 out struct Vertex{
     vec3 WorldNormal;
     vec3 WorldPosition;
+    vec3 Tangent;
 }v_out;
 
 out vec2 uv;
+out vec3 LocalNormal;
+out mat3 TBN;
 
 //out vec3 WorldNormal;
 //out vec3 WorldPosition;
