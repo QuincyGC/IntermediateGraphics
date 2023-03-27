@@ -162,7 +162,7 @@ namespace ew {
 				glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
 
 				//UV Mapping
-				glm::vec2 uv = glm::vec2(atan(z / x) / glm::two_pi<float>(), acos(y) / glm::pi<float>());
+				glm::vec2 uv = glm::vec2(theta / glm::two_pi<float>(), acos(y) / glm::pi<float>());
 
 				//printf("UV Map Sphere: %f", atan(z / x) / glm::two_pi<float>());
 
@@ -254,7 +254,7 @@ namespace ew {
 		{
 			glm::vec3 pos = meshData.vertices[i + 1].position;
 			glm::vec3 normal = glm::normalize((pos - meshData.vertices[0].position));
-			glm::vec2 uv = glm::vec2(atan(pos.z / pos.x) / glm::two_pi<float>(), pos.y); //added UV
+			glm::vec2 uv = glm::vec2((glm::two_pi<float>() / (float)numSegments) * i, pos.y); //added UV
 
 			meshData.vertices.push_back(Vertex(pos, normal, uv));
 		}
@@ -263,7 +263,7 @@ namespace ew {
 		{
 			glm::vec3 pos = meshData.vertices[bottomCenterIndex + i + 1].position;
 			glm::vec3 normal = glm::normalize((pos - meshData.vertices[bottomCenterIndex].position));
-			glm::vec2 uv = glm::vec2(atan(pos.z / pos.x) / glm::two_pi<float>(), pos.y); //added UV
+			glm::vec2 uv = glm::vec2((glm::two_pi<float>() / (float)numSegments) * i, pos.y); //added UV
 
 			meshData.vertices.push_back(Vertex(pos, normal, uv));
 		}

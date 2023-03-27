@@ -158,11 +158,12 @@ void main(){
 
     switch(_ChosenTexture)
     {
+        // * (_Time/ 2)
         case 0:
-         textureResult = vec4((result * texture(_WoodTexture, vec2(uv.x * (_Time/ 2), uv.y)).rgb) * material.color, 1.0f);
+         textureResult = vec4((result * texture(_WoodTexture, vec2(uv.x, uv.y)).rgb) * material.color, 1.0f);
         break;
         case 1:
-         textureResult = vec4((result * texture(_MarbleTexture, vec2(uv.x * (_Time/ 2), uv.y)).rgb) * material.color, 1.0f);
+         textureResult = vec4((result * texture(_MarbleTexture, vec2(uv.x, uv.y)).rgb) * material.color, 1.0f);
         break;
         default:
         break;
