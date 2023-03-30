@@ -1,3 +1,11 @@
+/*
+This Project is owned by Sam Fox
+
+3/27/2023
+This Project is being editted by Quincy Gomes Cedeno
+All editted portions are labeled with comments
+
+*/
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
@@ -181,6 +189,45 @@ int main() {
 	if (texture == NULL || normalMap == NULL)
 		std::cout << "Failed to load texture!" << std::endl;
 
+	//QUINCY CODE
+	//*************************************
+	
+	//Create Color Attachment Texture
+	unsigned int colorText;
+	glGenTextures(1, &colorText);
+	glActiveTexture(GL_TEXTURE2);
+
+	glBindTexture(GL_TEXTURE_2D, colorText);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_INT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//Create Depth Buffer that  is a RBO
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	//Create FBO
+	unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+
+	//Add Depth and Color to FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorText, 0);//assign attachment slot
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "FB Error: " << fboStatus << std::endl;
+	}
+	else
+	{
+		std::cout << "FB Complete" << std::endl;
+	}
+	//****************************************************************
+
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 		glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
@@ -269,6 +316,7 @@ int main() {
 	}
 
 	glDeleteTextures(1, &texture);
+	//glDeleteFramebuffers(1, &fbo);
 
 	glfwTerminate();
 	return 0;
