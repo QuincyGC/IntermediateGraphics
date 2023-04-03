@@ -49,6 +49,7 @@ int SCREEN_HEIGHT = 720;
 double prevMouseX;
 double prevMouseY;
 bool firstMouseInput = false;
+bool postEffect = false;
 
 /* Button to lock / unlock mouse
 * 1 = right, 2 = middle
@@ -127,10 +128,43 @@ int main() {
 	//Used to draw light sphere
 	Shader unlitShader("shaders/defaultLit.vert", "shaders/unlit.frag");
 
-	//Quincy Code
+	//Quincy Code (POTENTIAL PROBLEM HEAR BECAUSE MY SCREEN HAS ALWAYS BEEN BLACK FROM HERE
 	//*****************
 	Shader postProcess("shaders/PostProcess.vert", "shaders/PostProcess.frag");
-	//*****************
+	
+	//Create FBO
+	unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	//Create Color Attachment Texture
+	unsigned int colorText;
+	glGenTextures(1, &colorText);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, colorText);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorText, 0);//assign attachment slot
+
+	//Create Depth Buffer that  is a RBO
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+
+	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "FB Error: " << fboStatus << std::endl;
+	}
+	else
+	{
+		std::cout << "FB Complete" << std::endl;
+	}
+	//****************************************************************
 
 	ew::MeshData cubeMeshData;
 	ew::createCube(1.0f, 1.0f, 1.0f, cubeMeshData);
@@ -140,11 +174,14 @@ int main() {
 	ew::createCylinder(1.0f, 0.5f, 64, cylinderMeshData);
 	ew::MeshData planeMeshData;
 	ew::createPlane(1.0f, 1.0f, planeMeshData);
+	ew::MeshData quadMeshData;
+	ew::createQuad(2, 2, quadMeshData);
 
 	ew::Mesh cubeMesh(&cubeMeshData);
 	ew::Mesh sphereMesh(&sphereMeshData);
 	ew::Mesh planeMesh(&planeMeshData);
 	ew::Mesh cylinderMesh(&cylinderMeshData);
+	ew::Mesh quadMesh(&quadMeshData);
 
 	//Enable back face culling
 	glEnable(GL_CULL_FACE);
@@ -194,42 +231,6 @@ int main() {
 	if (texture == NULL || normalMap == NULL)
 		std::cout << "Failed to load texture!" << std::endl;
 
-	//QUINCY CODE
-	//*************************************
-	
-	//Create FBO
-	unsigned int fbo;
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-	//Create Color Attachment Texture
-	unsigned int colorText;
-	glGenTextures(1, &colorText);
-	//glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, colorText);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorText, 0);//assign attachment slot
-
-	//Create Depth Buffer that  is a RBO
-	unsigned int rbo;
-	glGenRenderbuffers(1, &rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32F, SCREEN_WIDTH, SCREEN_HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
-
-	GLenum fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-	{
-		std::cout << "FB Error: " << fboStatus << std::endl;
-	}
-	else
-	{
-		std::cout << "FB Complete" << std::endl;
-	}
-	//****************************************************************
 
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
@@ -239,7 +240,12 @@ int main() {
 
 		//Quincy Code
 		//**********************
-
+		//Bind Buffer
+		if (postEffect)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 		//*********************
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -299,23 +305,40 @@ int main() {
 		unlitShader.setVec3("_Color", pointLight.color);
 		sphereMesh.draw();
 
+		//Quincy Code
+		//********************************
+		if (postEffect)
+		{
+			postProcess.use();
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glActiveTexture(GL_TEXTURE2);
+
+			postProcess.setInt("_texture", 2);
+
+			glBindTexture(GL_TEXTURE_2D, colorText);
+			quadMesh.draw();
+		}
+		//***********************************
+
 		//Draw UI
 		ImGui::Begin("Settings");
 		ImGui::SliderFloat("Material Ambient K", &ambientK, 0, 1);
 		ImGui::SliderFloat("Material Diffuse K", &diffuseK, 0, 1);
 		ImGui::SliderFloat("Material Specular K", &specularK, 0, 1);
 		ImGui::SliderFloat("Material Shininess", &shininess, 1, 500);
-
 		ImGui::SliderFloat("Point Light Intensity", &pointLightIntensity, 0, 1);
 		ImGui::SliderFloat("Range", &range, 0.1, 10);
 		ImGui::DragFloat3("Position", &pointLight.position.x);
 		ImGui::DragFloat3("Color", &pointLight.color.x);
-
 		ImGui::SliderFloat("Normal Map Intensity", &normalMapIntensity, 0, 1);
-
 		lightTransform.position = pointLight.position;
-
 		ImGui::End();
+
+		ImGui::Checkbox("Enable postEffect", &postEffect);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
