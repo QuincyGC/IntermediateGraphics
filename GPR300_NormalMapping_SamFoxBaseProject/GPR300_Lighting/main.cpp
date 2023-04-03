@@ -141,8 +141,10 @@ int main() {
 	unsigned int colorText;
 	glGenTextures(1, &colorText);
 	glActiveTexture(GL_TEXTURE2);
+
 	glBindTexture(GL_TEXTURE_2D, colorText);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorText, 0);//assign attachment slot
@@ -218,15 +220,14 @@ int main() {
 	pointLight.color = glm::vec3(1, 1, 1);
 	pointLight.range = range;
 
-	
-	//Bind our name to GL_TEXTURE_2D to make it a 2D texture
-	GLuint texture = createTexture(TEXTURE);
-	GLuint normalMap = createTexture(NORMAL_MAP);
-
+	//Quincy Code
+	//*************************
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	GLuint texture = createTexture(TEXTURE);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, normalMap);
+	GLuint normalMap = createTexture(NORMAL_MAP);
+	//**************************
+
 
 	if (texture == NULL || normalMap == NULL)
 		std::cout << "Failed to load texture!" << std::endl;
@@ -244,6 +245,11 @@ int main() {
 		if (postEffect)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
+		else
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 		//*********************
@@ -315,11 +321,11 @@ int main() {
 			glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glActiveTexture(GL_TEXTURE2);
+			//glActiveTexture(GL_TEXTURE2);
 
 			postProcess.setInt("_texture", 2);
 
-			glBindTexture(GL_TEXTURE_2D, colorText);
+			/*glBindTexture(GL_TEXTURE_2D, colorText);*/
 			quadMesh.draw();
 		}
 		//***********************************
