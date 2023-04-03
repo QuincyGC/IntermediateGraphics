@@ -1,5 +1,5 @@
 //Author: Eric Winebrenner
-
+//Editted: By Quincy Gomes-Cedeno
 #include "ShapeGen.h"
 #include <glm/gtc/type_ptr.hpp>
 
